@@ -20,12 +20,12 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: activationkey_info
-short_description: Get information about activation keys in SUSE Manager
+short_description: Get information about activation keys in SUSE Multi-Linux Manager
 description:
-  - Get information about activation keys in SUSE Manager.
+  - Get information about activation keys in SUSE Multi-Linux Manager.
   - If no activation key identifier is provided, lists all activation keys.
   - If an activation key ID or name is provided, returns detailed information about that specific activation key.
-  - This module uses the SUSE Manager API to retrieve activation key information.
+  - This module uses the SUSE Multi-Linux Manager API to retrieve activation key information.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -51,7 +51,7 @@ options:
     type: int
     required: false
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to view activation key information.
   - If neither key_id nor key_name is provided, the module will list all activation keys.
   - If either key_id or key_name is provided, the module will return detailed information about that specific activation key.
@@ -152,11 +152,11 @@ activation_keys:
       type: list
       elements: str
       sample: ["sles15-sp4-updates-x86_64", "sles15-sp4-installer-updates-x86_64"]
-    server_group_ids:
-      description: List of server group IDs associated with the activation key.
+    server_group_names:
+      description: List of server group names associated with the activation key.
       type: list
-      elements: int
-      sample: [1, 2, 3]
+      elements: str
+      sample: ["Production Servers", "Web Servers"]
     packages:
       description: List of packages associated with the activation key.
       type: list
@@ -213,11 +213,11 @@ activation_key:
       type: list
       elements: str
       sample: ["sles15-sp4-updates-x86_64", "sles15-sp4-installer-updates-x86_64"]
-    server_group_ids:
-      description: List of server group IDs associated with the activation key.
+    server_group_names:
+      description: List of server group names associated with the activation key.
       type: list
-      elements: int
-      sample: [1, 2, 3]
+      elements: str
+      sample: ["Production Servers", "Web Servers"]
     packages:
       description: List of packages associated with the activation key.
       type: list
@@ -320,5 +320,5 @@ def main():
                 pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

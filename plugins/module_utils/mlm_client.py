@@ -93,7 +93,7 @@ def check_api_response(response, operation_name, module):
     Check API response for success/failure and handle errors.
 
     This function provides a global way to validate API responses across all modules
-    in the collection. Many SUSE Manager API endpoints return HTTP 200 even for
+    in the collection. Many SUSE Multi-Linux Manager API endpoints return HTTP 200 even for
     errors, but include error information in the response body.
 
     Args:
@@ -113,14 +113,14 @@ def check_api_response(response, operation_name, module):
             error_msg = response.get("message", "Unknown API error")
             module.fail_json(
                 msg="{} failed: {}".format(operation_name, error_msg),
-                api_response=response
+                api_response=response,
             )
 
         # Check for other error indicators
         if "error" in response:
             module.fail_json(
                 msg="{} failed: {}".format(operation_name, response["error"]),
-                api_response=response
+                api_response=response,
             )
 
     return response
@@ -214,7 +214,9 @@ class MLMClient:
             if not self.url.endswith(self.api_base_path):
                 self.url = self.url + self.api_base_path
         except Exception as e:
-            self.module.fail_json(msg="Error initializing MLM client: {}".format(str(e)))
+            self.module.fail_json(
+                msg="Error initializing MLM client: {}".format(str(e))
+            )
 
     def _load_credentials(self):
         """
@@ -232,7 +234,9 @@ class MLMClient:
         credentials_path = os.path.expanduser("~/.config/smlm/credentials.yaml")
 
         if not os.path.exists(credentials_path):
-            self.module.log(msg="Credentials file not found at {}".format(credentials_path))
+            self.module.log(
+                msg="Credentials file not found at {}".format(credentials_path)
+            )
             return False
 
         try:
@@ -398,7 +402,9 @@ class MLMClient:
         missing_params = []
 
         if not self.url:
-            missing_params.append("url (or {} environment variable)".format(ENV_MLM_URL))
+            missing_params.append(
+                "url (or {} environment variable)".format(ENV_MLM_URL)
+            )
         if not self.username:
             missing_params.append(
                 "username (or {} environment variable)".format(ENV_MLM_USERNAME)
@@ -410,7 +416,7 @@ class MLMClient:
 
         if missing_params:
             self.module.fail_json(
-                msg="Missing required parameters: {}".format(', '.join(missing_params))
+                msg="Missing required parameters: {}".format(", ".join(missing_params))
             )
 
     def login(self):
@@ -446,7 +452,9 @@ class MLMClient:
             # Check for successful authentication
             if info.get("status") != 200:
                 self.module.fail_json(
-                    msg="Failed to authenticate with MLM API: {}".format(info.get('msg', 'Unknown error')),
+                    msg="Failed to authenticate with MLM API: {}".format(
+                        info.get("msg", "Unknown error")
+                    ),
                     status_code=info.get("status", 0),
                 )
 
@@ -501,7 +509,7 @@ class MLMClient:
             float: The delay in seconds.
         """
         # Use simple time-based jitter instead of random
-        jitter = (time.time() % 1.0)  # Use fractional part of current time as jitter
+        jitter = time.time() % 1.0  # Use fractional part of current time as jitter
         delay = min(MAX_BACKOFF_DELAY, 2**retry_count) + jitter
         time.sleep(delay)
         return delay
@@ -618,8 +626,8 @@ class MLMClient:
                     retry_count += 1
                     self._apply_backoff(retry_count)
                 else:
-                    error_msg = (
-                        "Request failed after {} retries: {}".format(retries, to_native(e))
+                    error_msg = "Request failed after {} retries: {}".format(
+                        retries, to_native(e)
                     )
                     self.module.fail_json(msg=error_msg)
 
@@ -757,7 +765,9 @@ class MLMClient:
 
             # Standard error handling
             error_args = {
-                "msg": "{} request failed: {}".format(method, info.get('msg', 'Unknown error')),
+                "msg": "{} request failed: {}".format(
+                    method, info.get("msg", "Unknown error")
+                ),
                 "status_code": info["status"],
                 "path": path,
             }
@@ -865,9 +875,13 @@ class MLMClient:
             # Add pagination parameters to the path
             paginated_path = path
             if "?" in path:
-                paginated_path += "&{}={}&{}={}".format(page_param, page, page_size_param, page_size)
+                paginated_path += "&{}={}&{}={}".format(
+                    page_param, page, page_size_param, page_size
+                )
             else:
-                paginated_path += "?{}={}&{}={}".format(page_param, page, page_size_param, page_size)
+                paginated_path += "?{}={}&{}={}".format(
+                    page_param, page, page_size_param, page_size
+                )
 
             # Make the request
             response = self.get(paginated_path, headers=headers)
@@ -936,7 +950,7 @@ class MLMClient:
         """
         try:
             # Get relevant errata for the system using the correct query parameter format
-            path = "{}?sid={}".format(self.api_endpoints['relevant_errata'], system_id)
+            path = "{}?sid={}".format(self.api_endpoints["relevant_errata"], system_id)
 
             # Make the request directly to avoid 404 errors
             response, info = self._request("GET", path)
@@ -979,7 +993,9 @@ class MLMClient:
             str: The registration date of the system, or None if not found.
         """
         try:
-            path = "{}?sid={}".format(self.api_endpoints['registration_date'], system_id)
+            path = "{}?sid={}".format(
+                self.api_endpoints["registration_date"], system_id
+            )
             response, info = self._request("GET", path)
 
             if info["status"] != 200 or not response:
@@ -1017,7 +1033,7 @@ class MLMClient:
                 self.api_endpoints["system_groups"] = "/system/listGroups"
 
             # Make the API request to get system groups
-            path = "{}?sid={}".format(self.api_endpoints['system_groups'], system_id)
+            path = "{}?sid={}".format(self.api_endpoints["system_groups"], system_id)
             response, info = self._request("GET", path)
 
             if info["status"] != 200 or not response:
@@ -1081,7 +1097,9 @@ class MLMClient:
             if self.api_endpoints is None:
                 self.api_endpoints = DEFAULT_API_ENDPOINTS
 
-            reboot_path = self.api_endpoints.get("systems_reboot", "/system/listSuggestedReboot")
+            reboot_path = self.api_endpoints.get(
+                "systems_reboot", "/system/listSuggestedReboot"
+            )
 
             response = self.get(reboot_path)
 
@@ -1090,7 +1108,11 @@ class MLMClient:
                 systems_reboot = response["result"]
                 if isinstance(systems_reboot, list):
                     # Extract system IDs from the response
-                    return [system.get("id") for system in systems_reboot if system.get("id")]
+                    return [
+                        system.get("id")
+                        for system in systems_reboot
+                        if system.get("id")
+                    ]
                 return []
             elif isinstance(response, list):
                 # Handle case where API returns systems directly as a list

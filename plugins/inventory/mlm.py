@@ -342,7 +342,7 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
 
         except Exception as e:
             # Raise an error with detailed information if we can't connect to the API
-            raise AnsibleParserError(f"Error fetching systems from MLM API: {str(e)}. Please check URL ({self.get_option('url')}), credentials, and network connectivity.")
+            raise AnsibleParserError("Error fetching systems from MLM API: {}. Please check URL ({}), credentials, and network connectivity.".format(str(e), self.get_option('url')))
 
     def _filter_systems(self, systems):
         """
@@ -644,7 +644,7 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
         if "patch_status" in group_by:
             # Use the patch_status field that was already set in get_systems_with_patch_status
             patch_status = system.get("patch_status", "up_to_date")
-            self._add_host_to_group(inventory_hostname, f"patch_status_{patch_status}")
+            self._add_host_to_group(inventory_hostname, "patch_status_{}".format(patch_status))
 
         # Add to system groups - always add systems to their respective groups
         # regardless of group_by configuration to ensure groups are exposed
@@ -763,8 +763,8 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
 
         # Create a more specific cache key based on filters
         filters = self.get_option("filters") or {}
-        filter_str = "_".join(f"{k}_{v}" for k, v in sorted(filters.items()) if v != "all")
-        cache_key = f"{self.cache_key}_{filter_str}" if filter_str else self.cache_key
+        filter_str = "_".join("{}_{}".format(k, v) for k, v in sorted(filters.items()) if v != "all")
+        cache_key = "{}_{}".format(self.cache_key, filter_str) if filter_str else self.cache_key
 
         # Try to get data from cache
         try:

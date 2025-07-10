@@ -20,11 +20,11 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: activationkey
-short_description: Manage activation keys in SUSE Manager
+short_description: Manage activation keys in SUSE Multi-Linux Manager
 description:
-  - Create, update, or delete activation keys in SUSE Manager.
+  - Create, update, or delete activation keys in SUSE Multi-Linux Manager.
   - Manage software channels and packages associated with activation keys.
-  - This module uses the SUSE Manager API to manage activation keys.
+  - This module uses the SUSE Multi-Linux Manager API to manage activation keys.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -90,7 +90,7 @@ options:
   contact_method:
     description:
       - The contact method for systems using this activation key.
-      - Determines how the SUSE Manager server contacts client systems.
+      - Determines how the SUSE Multi-Linux Manager server contacts client systems.
       - Only used when state=present.
     type: str
     choices: [ default, ssh-push, ssh-push-tunnel ]
@@ -99,7 +99,7 @@ options:
     description:
       - Add-on system type labels to associate with the activation key.
       - Valid entitlements include container_build_host, monitoring_entitled, osimage_build_host, virtualization_host, ansible_control_node, proxy_entitled.
-      - Only used when state=present.
+      - Only used when state=present and entitlement_state is specified.
     type: list
     elements: str
     choices:
@@ -110,6 +110,13 @@ options:
       - ansible_control_node
       - proxy_entitled
     required: false
+  entitlement_state:
+    description:
+      - Whether entitlements should be present or absent.
+      - Only applies when entitlements is specified.
+    type: str
+    choices: [ present, absent ]
+    default: present
   child_channels:
     description:
       - List of child channel labels to associate with the activation key.
@@ -138,8 +145,22 @@ options:
     type: str
     choices: [ present, absent ]
     default: present
+  server_groups:
+    description:
+      - List of server group names to associate with the activation key.
+      - Only used when state=present and server_group_state is specified.
+    type: list
+    elements: str
+    required: false
+  server_group_state:
+    description:
+      - Whether server groups should be present or absent.
+      - Only applies when server_groups is specified.
+    type: str
+    choices: [ present, absent ]
+    default: present
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to manage activation keys.
   - When deleting an activation key, all associated configurations will be removed.
   - Deleting an activation key is a destructive operation and cannot be undone.
@@ -262,6 +283,42 @@ EXAMPLES = r"""
     package_state: absent
     state: present
 
+- name: Add server groups to activation key
+  goldyfruit.mlm.activationkey:
+    key_name: "sles-15-key"
+    server_groups:
+      - "Production Servers"
+      - "Web Servers"
+      - "Database Servers"
+    server_group_state: present
+    state: present
+
+- name: Remove server groups from activation key
+  goldyfruit.mlm.activationkey:
+    key_name: "sles-15-key"
+    server_groups:
+      - "Database Servers"
+    server_group_state: absent
+    state: present
+
+- name: Add entitlements to activation key
+  goldyfruit.mlm.activationkey:
+    key_name: "sles-15-key"
+    entitlements:
+      - "virtualization_host"
+      - "monitoring_entitled"
+      - "ansible_control_node"
+    entitlement_state: present
+    state: present
+
+- name: Remove entitlements from activation key
+  goldyfruit.mlm.activationkey:
+    key_name: "sles-15-key"
+    entitlements:
+      - "monitoring_entitled"
+    entitlement_state: absent
+    state: present
+
 - name: Delete an activation key
   goldyfruit.mlm.activationkey:
     key_name: "sles-15-key"
@@ -346,6 +403,8 @@ from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_activationkey_u
     delete_activation_key,
     manage_activation_key_channels,
     manage_activation_key_packages,
+    manage_activation_key_server_groups,
+    manage_activation_key_entitlements,
     get_activation_key_by_name,
 )
 
@@ -376,7 +435,11 @@ def main():
         unlimited_usage_limit=dict(type="bool", required=False),
         universal_default=dict(type="bool", required=False),
         disabled=dict(type="bool", required=False),
-        contact_method=dict(type="str", required=False, choices=["default", "ssh-push", "ssh-push-tunnel"]),
+        contact_method=dict(
+            type="str",
+            required=False,
+            choices=["default", "ssh-push", "ssh-push-tunnel"],
+        ),
         entitlements=dict(
             type="list",
             elements="str",
@@ -387,13 +450,24 @@ def main():
                 "osimage_build_host",
                 "virtualization_host",
                 "ansible_control_node",
-                "proxy_entitled"
-            ]
+                "proxy_entitled",
+            ],
+        ),
+        entitlement_state=dict(
+            type="str", default="present", choices=["present", "absent"]
         ),
         child_channels=dict(type="list", elements="str", required=False),
-        channel_state=dict(type="str", default="present", choices=["present", "absent"]),
+        channel_state=dict(
+            type="str", default="present", choices=["present", "absent"]
+        ),
         packages=dict(type="list", elements="str", required=False),
-        package_state=dict(type="str", default="present", choices=["present", "absent"]),
+        package_state=dict(
+            type="str", default="present", choices=["present", "absent"]
+        ),
+        server_groups=dict(type="list", elements="str", required=False),
+        server_group_state=dict(
+            type="str", default="present", choices=["present", "absent"]
+        ),
     )
 
     # Create the module
@@ -428,15 +502,15 @@ def main():
                 # Key exists - check if update is needed
                 changed, result, msg = update_activation_key(module, client)
                 # Get the actual key name (might have org prefix)
-                actual_key_name = existing_key.get('key', key_name)
+                actual_key_name = existing_key.get("key", key_name)
             else:
                 # Key doesn't exist - create it first
                 changed, result, msg = create_activation_key(module, client)
 
                 # For autogenerated keys, we need to get the actual key name from the result
             if not key_name:
-                if isinstance(result, dict) and 'key' in result:
-                    actual_key_name = result['key']
+                if isinstance(result, dict) and "key" in result:
+                    actual_key_name = result["key"]
                 else:
                     # If we can't get it from result, fetch the newly created key
                     keys = client.get("/activationkey/listActivationKeys")
@@ -444,17 +518,21 @@ def main():
                         keys = keys["result"]
                     if isinstance(keys, list) and keys:
                         # Get the most recently created key (assuming it's the last one)
-                        actual_key_name = keys[-1].get('key', '')
+                        actual_key_name = keys[-1].get("key", "")
                     else:
-                        module.fail_json(msg="Failed to determine the name of the created activation key")
+                        module.fail_json(
+                            msg="Failed to determine the name of the created activation key"
+                        )
             else:
                 actual_key_name = key_name
 
             # Step 2: Now that the activation key is guaranteed to exist, manage channels if specified
             if module.params.get("child_channels"):
                 # Update module params with the actual key name for channel management
-                module.params['key_name'] = actual_key_name
-                ch_changed, ch_result, ch_msg = manage_activation_key_channels(module, client)
+                module.params["key_name"] = actual_key_name
+                ch_changed, ch_result, ch_msg = manage_activation_key_channels(
+                    module, client
+                )
                 if ch_changed:
                     changed = True
                     msg += " {}".format(ch_msg)
@@ -462,8 +540,10 @@ def main():
             # Step 3: Finally, manage packages if specified
             if module.params.get("packages"):
                 # Update module params with the actual key name for package management
-                module.params['key_name'] = actual_key_name
-                pkg_changed, pkg_result, pkg_msg = manage_activation_key_packages(module, client)
+                module.params["key_name"] = actual_key_name
+                pkg_changed, pkg_result, pkg_msg = manage_activation_key_packages(
+                    module, client
+                )
                 if pkg_changed:
                     changed = True
                     # Only append the message if packages were actually changed
@@ -471,9 +551,55 @@ def main():
                         msg += " {}".format(pkg_msg)
                     else:
                         # Replace the "already up to date" message with the package action
-                        msg = msg.replace("already up to date", "updated") + " {}".format(pkg_msg)
+                        msg = msg.replace(
+                            "already up to date", "updated"
+                        ) + " {}".format(pkg_msg)
                 else:
                     # If packages weren't changed but channels were, don't append anything
+                    # If nothing was changed, keep the original message
+                    pass
+
+            # Step 3.5: Manage server groups if specified
+            if module.params.get("server_groups"):
+                # Update module params with the actual key name for server group management
+                module.params["key_name"] = actual_key_name
+                sg_changed, sg_result, sg_msg = manage_activation_key_server_groups(
+                    module, client
+                )
+                if sg_changed:
+                    changed = True
+                    # Only append the message if server groups were actually changed
+                    if not msg.endswith("already up to date"):
+                        msg += " {}".format(sg_msg)
+                    else:
+                        # Replace the "already up to date" message with the server group action
+                        msg = msg.replace(
+                            "already up to date", "updated"
+                        ) + " {}".format(sg_msg)
+                else:
+                    # If server groups weren't changed but other things were, don't append anything
+                    # If nothing was changed, keep the original message
+                    pass
+
+            # Step 3.6: Manage entitlements if specified
+            if module.params.get("entitlements"):
+                # Update module params with the actual key name for entitlement management
+                module.params["key_name"] = actual_key_name
+                ent_changed, ent_result, ent_msg = manage_activation_key_entitlements(
+                    module, client
+                )
+                if ent_changed:
+                    changed = True
+                    # Only append the message if entitlements were actually changed
+                    if not msg.endswith("already up to date"):
+                        msg += " {}".format(ent_msg)
+                    else:
+                        # Replace the "already up to date" message with the entitlement action
+                        msg = msg.replace(
+                            "already up to date", "updated"
+                        ) + " {}".format(ent_msg)
+                else:
+                    # If entitlements weren't changed but other things were, don't append anything
                     # If nothing was changed, keep the original message
                     pass
 
@@ -496,5 +622,5 @@ def main():
         client.logout()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
