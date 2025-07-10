@@ -636,13 +636,14 @@ class MLMClient:
             msg="Request failed after {} retries with no response".format(retries)
         )
 
-    def get(self, path, headers=None):
+    def get(self, path, headers=None, params=None):
         """
         Make a GET request to the MLM API.
 
         Args:
             path: The API endpoint path.
             headers: Optional headers to include with the request.
+            params: Optional query parameters to include in the URL.
 
         Returns:
             dict: The parsed JSON response.
@@ -650,6 +651,14 @@ class MLMClient:
         Raises:
             AnsibleFailJson: If the request fails or returns an error.
         """
+        # Add query parameters to the path if provided
+        if params:
+            query_string = "&".join(["{}={}".format(k, v) for k, v in params.items()])
+            if "?" in path:
+                path = "{}{}".format(path, query_string)
+            else:
+                path = "{}?{}".format(path, query_string)
+
         response, info = self._request("GET", path, headers=headers)
         return self._handle_response(response, info, "GET", path)
 
