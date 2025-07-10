@@ -1,0 +1,89 @@
+---
+# Dynamic inventory configuration for SUSE Multi-Linux Manager
+# This replaces the need for static inventory files
+
+plugin: suse.mlm.mlm
+
+# Connection details - replace with your actual MLM server details
+# These parameters are required and can be provided either here or via environment variables:
+# export MLM_URL="https://your-mlm-server.example.com"
+# export MLM_USERNAME="your-username"
+# export MLM_PASSWORD="your-password"
+url: "https://suma.home.lan"
+username: "admin"
+password: "admin"
+validate_certs: true
+
+# Connection timeout and retry settings (optional)
+timeout: 60 # seconds
+retries: 3 # number of retry attempts for API calls
+
+# Cache settings
+# Set to false if you always want fresh data
+cache: false
+cache_timeout: 3600 # 1 hour
+
+# Filter systems by their properties (all filters are optional)
+# Note: patch_status is determined by the client based on errata_count and reboot requirements
+# Possible values:
+# - "needs_reboot": systems that require a reboot after patching (highest priority)
+# - "needs_patches": systems with errata_count > 0 but no reboot required
+# - "up_to_date": systems with no pending patches
+filters:
+  status: all # Filter by system status: 'active', 'inactive', or 'all'
+  patch_status: all # Filter by patch status: 'up_to_date', 'needs_patches', 'needs_reboot', or 'all'
+  system_groups: # Filter by system group membership
+    - all
+
+# Group systems by their properties
+# This creates Ansible groups automatically based on system attributes
+group_by:
+  - status
+  - patch_status
+  - system_groups
+
+# Create custom host variables using Jinja2 expressions
+# Additional fields available from the client but not used here: errata_count
+compose:
+  ansible_host: "hostname"
+  registration_date: "registration_date | string"
+  needs_reboot: "patch_status == 'needs_reboot'"
+  # You can add more custom variables as needed, for example:
+  # has_patches: "errata_count > 0"
+  # needs_attention: "patch_status in ['needs_patches', 'needs_reboot']"
+  # reboot_priority: "1 if patch_status == 'needs_reboot' else 0"
+
+# Example configurations for different use cases:
+#
+# Example 1: Only get systems that need reboot (for maintenance windows)
+# filters:
+#   status: active
+#   patch_status: needs_reboot
+#
+# Example 2: Get systems that need any kind of patching
+# filters:
+#   status: active
+#   patch_status: needs_patches
+#
+# Example 3: Get systems from specific groups that need reboot
+# filters:
+#   status: active
+#   patch_status: needs_reboot
+#   system_groups:
+#     - production
+#     - web_servers
+
+# Advanced API configuration options are available but not typically needed
+# Refer to the documentation for details if you need to customize API endpoints
+
+# Field mappings (optional)
+# These settings allow you to customize how fields from the API are mapped to inventory variables
+field_mappings:
+  system:
+    id: "id"
+    name: "name"
+    hostname: "hostname"
+    active: "active"
+    registration_date: ["created", "registered", "registrationDate"]
+    last_checkin: "lastCheckin"
+    last_boot: "lastBoot"

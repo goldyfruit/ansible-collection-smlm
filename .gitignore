@@ -1,0 +1,156 @@
+# Ansible Collection specific
+*.tar.gz
+/releases/
+/builds/
+/collections/
+
+# Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.env/
+.venv/
+env.bak/
+venv.bak/
+.python-version
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+junit/
+test-results.xml
+
+# Ansible specific
+*.retry
+ansible.log
+*.log
+*.tmp
+*.bak
+*.swp
+*~
+.ansible/
+.galaxy_install_info
+ansible_collections/
+
+# IDE specific files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+.project
+.pydevproject
+.settings/
+.DS_Store
+.env
+.envrc
+.direnv/
+
+# Documentation
+docs/_build/
+docs/api/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# Ansible inventory
+inventory.yml
+inventory.yaml
+hosts.yml
+hosts.yaml
+!examples/inventory/*.yml
+!examples/inventory/*.yaml
+
+# Ansible vault
+*.vault
+*.vault.yml
+*.vault.yaml
+
+# Ansible roles downloaded from Galaxy
+roles/*
+!roles/requirements.yml
+!roles/*/
+
+# Ansible collections downloaded from Galaxy
+collections/*
+!collections/requirements.yml
+!collections/*/
+
+# Ignore sensitive files that might be used for testing
+credentials.yml
+passwords.yml
+secrets.yml
+*_token.yml
+*_key.yml
