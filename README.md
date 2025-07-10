@@ -101,6 +101,122 @@ Let's create something awesome! Here's a playbook that sets up an activation key
         msg: "🚀 Activation key '{{ activation_key.activation_key.key }}' is ready for action!"
 ```
 
+## 🎯 Dynamic Inventory Usage
+
+### 🔍 Discovering Your Infrastructure
+
+The MLM inventory plugin automatically discovers and organizes your managed systems, making it easy to target specific groups for automation tasks.
+
+#### Basic Inventory Usage
+
+```bash
+# List all discovered systems
+ansible-inventory -i goldyfruit.mlm.inventory --list
+
+# Get specific host information
+ansible-inventory -i goldyfruit.mlm.inventory --host server01.example.com
+
+# Use with ansible commands
+ansible all -i goldyfruit.mlm.inventory -m ping
+
+# Run playbooks against discovered systems
+ansible-playbook -i goldyfruit.mlm.inventory site.yml
+```
+
+#### Configuration Options
+
+Create an inventory configuration file:
+
+```yaml
+# inventory_mlm.yml
+plugin: goldyfruit.mlm.inventory
+url: https://your-suse-manager.example.com
+username: admin
+password: your-password
+# Optional: Use credentials file instead
+# instance: default
+
+# Group systems by various attributes
+keyed_groups:
+  - key: system_groups
+    prefix: group
+  - key: base_channel
+    prefix: channel
+  - key: entitlements
+    prefix: entitlement
+
+# Create custom groups
+groups:
+  production: "'prod' in inventory_hostname"
+  staging: "'stage' in inventory_hostname"
+  web_servers: "'web' in system_groups"
+  databases: "'db' in system_groups"
+
+# Add custom host variables
+compose:
+  ansible_host: network_hostname
+  system_id: id
+  last_checkin: last_checkin_date
+```
+
+#### Using the Inventory in Playbooks
+
+```yaml
+---
+- name: 🎯 Target systems discovered by MLM inventory
+  hosts: group_web_servers  # Systems in "Web Servers" group
+  tasks:
+    - name: 📊 Show system information
+      debug:
+        msg: |
+          System: {{ inventory_hostname }}
+          System ID: {{ system_id }}
+          Last Check-in: {{ last_checkin }}
+          Groups: {{ system_groups }}
+
+- name: 🔄 Update specific channel systems
+  hosts: channel_sles15_sp4_pool_x86_64
+  tasks:
+    - name: 🚀 Apply patches
+      # Your patching tasks here
+      debug:
+        msg: "Patching {{ inventory_hostname }}"
+
+- name: 🏷️ Work with systems by entitlement
+  hosts: entitlement_monitoring_entitled
+  tasks:
+    - name: 📊 Configure monitoring
+      # Your monitoring configuration here
+      debug:
+        msg: "Configuring monitoring on {{ inventory_hostname }}"
+```
+
+#### Advanced Inventory Features
+
+```bash
+# Filter systems by specific criteria
+ansible-inventory -i inventory_mlm.yml --list | jq '.group_web_servers.hosts'
+
+# Use with ansible-vault for encrypted credentials
+ansible-playbook -i inventory_mlm.yml --ask-vault-pass site.yml
+
+# Combine with static inventory
+ansible-playbook -i static_inventory -i inventory_mlm.yml site.yml
+```
+
+#### Integration with ansible.cfg
+
+```ini
+# ansible.cfg
+[defaults]
+inventory = inventory_mlm.yml
+host_key_checking = False
+timeout = 30
+
+[inventory]
+enable_plugins = goldyfruit.mlm.inventory
+```
+
 ## 🎨 Advanced Usage Patterns
 
 ### 🔄 The GitOps Approach
