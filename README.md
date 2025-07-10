@@ -18,6 +18,7 @@ Think of it as your personal DevOps assistant that never sleeps, never complains
 ## 🎁 What's In The Box?
 
 ### 🛠️ Awesome Features
+
 - **🔐 Multiple Authentication Methods** - Credentials files, explicit auth, you name it!
 - **✅ Idempotent Operations** - Run it once, run it a thousand times, same result
 - **🧪 Check Mode Support** - Test your changes without breaking anything
@@ -46,17 +47,19 @@ Create a credentials file (because nobody likes hardcoding passwords):
 ```bash
 mkdir -p ~/.config/smlm
 cat > ~/.config/smlm/credentials.yaml << EOF
-default:
-  url: https://your-suse-manager.example.com
-  username: admin
-  password: your-super-secret-password
-  validate_certs: true
+default: staging
+instances:
+  prod:
+    url: https://your-suse-manager.example.com
+    username: admin
+    password: your-super-secret-password
+    validate_certs: true
 
-staging:
-  url: https://staging-suse-manager.example.com
-  username: staging_admin
-  password: staging-password
-  validate_certs: false
+  staging:
+    url: https://staging-suse-manager.example.com
+    username: staging_admin
+    password: staging-password
+    validate_certs: false
 EOF
 ```
 
@@ -164,9 +167,30 @@ Let's create something awesome! Here's a playbook that sets up an activation key
         packages: "{{ item.packages }}"
         state: present
       loop:
-        - { env: "prod", role: "web", channel: "sles15-sp4-pool-x86_64", limit: 20, entitlements: ["monitoring_entitled"], packages: ["nginx", "php"] }
-        - { env: "prod", role: "db", channel: "sles15-sp4-pool-x86_64", limit: 5, entitlements: ["monitoring_entitled"], packages: ["mysql-server"] }
-        - { env: "staging", role: "web", channel: "sles15-sp4-pool-x86_64", limit: 5, entitlements: [], packages: ["nginx", "php"] }
+        - {
+            env: "prod",
+            role: "web",
+            channel: "sles15-sp4-pool-x86_64",
+            limit: 20,
+            entitlements: ["monitoring_entitled"],
+            packages: ["nginx", "php"],
+          }
+        - {
+            env: "prod",
+            role: "db",
+            channel: "sles15-sp4-pool-x86_64",
+            limit: 5,
+            entitlements: ["monitoring_entitled"],
+            packages: ["mysql-server"],
+          }
+        - {
+            env: "staging",
+            role: "web",
+            channel: "sles15-sp4-pool-x86_64",
+            limit: 5,
+            entitlements: [],
+            packages: ["nginx", "php"],
+          }
 ```
 
 ## 🔍 Troubleshooting Guide
@@ -177,6 +201,7 @@ Let's create something awesome! Here's a playbook that sets up an activation key
 
 **Problem**: `Invalid credentials` error
 **Solution**:
+
 ```bash
 # Check your credentials file
 cat ~/.config/smlm/credentials.yaml
@@ -192,6 +217,7 @@ ansible-playbook -e "mlm_url=https://your-server.com" \
 
 **Problem**: `SSL certificate verification failed`
 **Solution**:
+
 ```yaml
 # In your playbook, disable SSL verification
 - name: Create activation key with SSL disabled
@@ -204,6 +230,7 @@ ansible-playbook -e "mlm_url=https://your-server.com" \
 
 **Problem**: `Activation key 'mykey' does not exist`
 **Solution**:
+
 ```yaml
 # List all keys first to see what's available
 - name: List all activation keys
@@ -219,6 +246,7 @@ ansible-playbook -e "mlm_url=https://your-server.com" \
 
 **Problem**: `Server group 'My Group' not found`
 **Solution**:
+
 ```yaml
 # Create the group first
 - name: Create server group
@@ -254,9 +282,6 @@ Want to make this collection even more awesome? We'd love your help!
 # Clone the repository
 git clone https://github.com/goldyfruit/ansible-collection-smlm.git
 cd ansible-collection-smlm
-
-# Install development dependencies
-pip install -r requirements-dev.txt
 
 # Run the tests
 ansible-test sanity --python 3.9
@@ -297,25 +322,6 @@ This collection is licensed under the Apache License 2.0. See the [LICENSE](LICE
 - 📧 **Email**: [gaetan.trellu@suse.com](mailto:gaetan.trellu@suse.com)
 - 🐦 **Twitter**: [@goldyfruit](https://twitter.com/goldyfruit)
 
-## 🎯 Roadmap
-
-### 🔮 Coming Soon
-
-- 🔄 **Channel Management** - Full software channel automation
-- 🖥️ **System Management** - Direct system operations
-- 📊 **Reporting Modules** - Get insights from your infrastructure
-- 🔧 **Configuration Management** - Manage system configurations
-- 🚀 **Patch Management** - Automate security updates
-- 📋 **Compliance Reporting** - Security and compliance automation
-
-### 🌟 Future Dreams
-
-- 🎭 **Ansible Execution Environment** - Ready-to-use container
-- 🔄 **GitOps Integration** - Built-in GitOps workflows
-- 📱 **Mobile Dashboard** - Monitor from anywhere
-- 🤖 **AI-Powered Recommendations** - Smart automation suggestions
-- 🌍 **Multi-Cloud Support** - Manage systems across cloud providers
-
 ---
 
 ## 🎪 That's a Wrap!
@@ -330,7 +336,7 @@ Remember: **Life's too short for manual deployments!** 🚀
 
 ---
 
-*Made with ❤️ and lots of ☕ by the SUSE automation team*
+_Made with ❤️ and lots of ☕ by the SUSE automation team_
 
 > "In automation we trust, in manual processes we don't!" - Ancient DevOps proverb
 
