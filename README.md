@@ -113,8 +113,12 @@ The MLM inventory plugin automatically discovers and organizes your managed syst
 # List all discovered systems
 ansible-inventory -i goldyfruit.mlm.inventory --list
 
-# Get specific host information
-ansible-inventory -i goldyfruit.mlm.inventory --host server01.example.com
+# Get specific host information (use actual hostname from your inventory)
+# First, get list of hosts to find valid hostnames:
+ansible-inventory -i goldyfruit.mlm.inventory --list | jq -r '._meta.hostvars | keys[]'
+
+# Then query specific host (replace with actual hostname from above):
+ansible-inventory -i goldyfruit.mlm.inventory --host your-actual-hostname
 
 # Use with ansible commands
 ansible all -i goldyfruit.mlm.inventory -m ping
