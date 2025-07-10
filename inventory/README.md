@@ -13,10 +13,10 @@ The MLM inventory plugin connects to a SUSE Multi-Linux Manager server via its A
 
 ## Installation
 
-This plugin is part of the `suse.mlm` collection. To use it, ensure the collection is installed:
+This plugin is part of the `goldyfruit.mlm` collection. To use it, ensure the collection is installed:
 
 ```bash
-ansible-galaxy collection install suse.mlm
+ansible-galaxy collection install goldyfruit.mlm
 ```
 
 ## Configuration File
@@ -25,7 +25,7 @@ The MLM inventory plugin uses a YAML configuration file that must end with `mlm.
 
 ```yaml
 ---
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 
 # Connection details (only if ~/.config/smlm/credentials.yaml doesn't exist)
 url: "https://mlm.example.com"
@@ -190,7 +190,7 @@ Each host in the inventory has the following variables:
 ### Minimal Configuration
 
 ```yaml
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: "https://mlm.example.com"
 username: "admin"
 password: "password"
@@ -199,7 +199,7 @@ password: "password"
 ### Configuration with Filtering and Grouping
 
 ```yaml
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: "https://mlm.example.com"
 username: "admin"
 password: "password"
@@ -256,7 +256,7 @@ Systems are automatically added to their respective groups, allowing you to targ
 
 ```yaml
 # inventory_reboot_only.yml - Only get systems that need reboot
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: "https://mlm.example.com"
 username: "admin"
 password: "password"
@@ -280,7 +280,7 @@ ansible-playbook -i inventory_reboot_only.yml reboot_playbook.yml
 If you encounter issues with cached data, you can disable caching:
 
 ```yaml
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: "https://mlm.example.com"
 username: "admin"
 password: "password"
@@ -292,7 +292,7 @@ cache: false
 If you're using self-signed certificates for testing:
 
 ```yaml
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: "https://mlm.example.com"
 username: "admin"
 password: "password"

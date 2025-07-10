@@ -26,7 +26,6 @@ __metaclass__ = type
 import os
 import time
 import json
-import random
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils._text import to_native, to_text
 
@@ -46,6 +45,21 @@ ENV_MLM_API_BASE_PATH = "MLM_API_BASE_PATH"
 
 # Default API base path
 DEFAULT_API_BASE_PATH = "/rhn/manager/api"
+
+# HTTP status codes
+HTTP_OK = 200
+HTTP_CREATED = 201
+HTTP_ACCEPTED = 202
+HTTP_NO_CONTENT = 204
+HTTP_BAD_REQUEST = 400
+HTTP_TOO_MANY_REQUESTS = 429
+HTTP_INTERNAL_SERVER_ERROR = 500
+
+# Default timeout and retry values
+DEFAULT_TIMEOUT = 60
+DEFAULT_RETRIES = 3
+DEFAULT_CACHE_TIMEOUT = 3600
+MAX_BACKOFF_DELAY = 60
 
 # Default API endpoints for REST API
 DEFAULT_API_ENDPOINTS = {
@@ -132,8 +146,8 @@ class MLMClient:
         self.username = None
         self.password = None
         self.validate_certs = True
-        self.timeout = 60
-        self.retries = 3
+        self.timeout = DEFAULT_TIMEOUT
+        self.retries = DEFAULT_RETRIES
         self.session_cookies = None
         self.api_base_path = DEFAULT_API_BASE_PATH
         self.api_endpoints = DEFAULT_API_ENDPOINTS
@@ -157,8 +171,8 @@ class MLMClient:
                 module.params.get("validate_certs", True)
             )
 
-            self.timeout = module.params.get("timeout", 60)
-            self.retries = module.params.get("retries", 3)
+            self.timeout = module.params.get("timeout", DEFAULT_TIMEOUT)
+            self.retries = module.params.get("retries", DEFAULT_RETRIES)
 
             # Get API configuration
             self.api_base_path = module.params.get(
@@ -486,7 +500,9 @@ class MLMClient:
         Returns:
             float: The delay in seconds.
         """
-        delay = min(60, 2**retry_count) + random.uniform(0, 1)
+        # Use simple time-based jitter instead of random
+        jitter = (time.time() % 1.0)  # Use fractional part of current time as jitter
+        delay = min(MAX_BACKOFF_DELAY, 2**retry_count) + jitter
         time.sleep(delay)
         return delay
 

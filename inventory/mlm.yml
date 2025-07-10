@@ -2,7 +2,7 @@
 # Dynamic inventory configuration for SUSE Multi-Linux Manager
 # This replaces the need for static inventory files
 
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 
 # Connection details - replace with your actual MLM server details
 # These parameters are required and can be provided either here or via environment variables:

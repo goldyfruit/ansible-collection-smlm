@@ -46,7 +46,7 @@ options:
     plugin:
         description: Token that ensures this is a source file for the 'mlm' plugin.
         required: true
-        choices: ['suse.mlm.mlm', 'mlm']
+        choices: ['goldyfruit.mlm.mlm', 'mlm']
     url:
         description:
             - URL of the SUSE Multi-Linux Manager server.
@@ -157,17 +157,17 @@ options:
 
 EXAMPLES = r"""
 # Minimal example using environment variables for authentication
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 
 # Example with explicit authentication
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: https://mlm.example.com
 username: admin
 password: password
 validate_certs: true
 
 # Example with filters
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: https://mlm.example.com
 username: admin
 password: password
@@ -179,7 +179,7 @@ filters:
     - web_servers
 
 # Example with custom grouping and variables
-plugin: suse.mlm.mlm
+plugin: goldyfruit.mlm.mlm
 url: https://mlm.example.com
 username: admin
 password: password
@@ -210,7 +210,7 @@ from ansible.errors import AnsibleParserError
 from ansible.plugins.inventory import BaseInventoryPlugin, Cacheable, Constructable
 
 try:
-    from ansible_collections.suse.mlm.plugins.module_utils.mlm_client import MLMClient
+    from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import MLMClient
 
     HAS_MLM_CLIENT = True
 except ImportError:
