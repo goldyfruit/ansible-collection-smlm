@@ -1,0 +1,23 @@
+---
+# Collections must specify a minimum required ansible version to upload
+# to galaxy
+requires_ansible: '>=2.9.10'
+
+# Groups of actions/modules that take a common set of options
+action_groups:
+  # Group for organization management modules
+  organization:
+    - org
+    - org_info
+    - org_transfer
+    - org_update
+
+  # Group for SCAP management modules
+  scap:
+    - scap_info
+    - scap_scan
+
+  # Group for system group management modules
+  systemgroup:
+    - systemgroup
+    - systemgroup_info
