@@ -162,16 +162,6 @@ EXAMPLES = r"""
   goldyfruit.mlm.systemgroup:
     name: "Old Servers"
     state: absent
-
-# Traditional method with explicit credentials (still supported)
-- name: Create system group with explicit credentials
-  goldyfruit.mlm.systemgroup:
-    url: https://suma.example.com
-    username: admin
-    password: admin
-    name: "Production Servers"
-    description: "Production web servers"
-    state: present
 """
 
 RETURN = r"""

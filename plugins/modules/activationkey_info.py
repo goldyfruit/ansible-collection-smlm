@@ -62,9 +62,6 @@ requirements:
 EXAMPLES = r"""
 - name: List all activation keys
   goldyfruit.mlm.activationkey_info:
-    url: https://suma.example.com
-    username: admin
-    password: admin
   register: key_list
 
 - name: Display activation key names
@@ -77,17 +74,11 @@ EXAMPLES = r"""
 
 - name: Get activation key details by ID
   goldyfruit.mlm.activationkey_info:
-    url: https://suma.example.com
-    username: admin
-    password: admin
     key_id: 42
   register: key_details
 
 - name: Get activation key details by name
   goldyfruit.mlm.activationkey_info:
-    url: https://suma.example.com
-    username: admin
-    password: admin
     key_name: "sles-15-key"
   register: key_details
 
@@ -97,9 +88,6 @@ EXAMPLES = r"""
 
 - name: List activation keys for specific organization
   goldyfruit.mlm.activationkey_info:
-    url: https://suma.example.com
-    username: admin
-    password: admin
     org_id: 1
   register: org_keys
 """

@@ -54,10 +54,8 @@ requirements:
 """
 
 EXAMPLES = r"""
-# Using credentials configuration file (recommended)
 - name: List all system groups
   goldyfruit.mlm.systemgroup_info:
-    # No credentials needed - loaded from ~/.config/smlm/credentials.yaml
   register: group_list
 
 - name: Display system group names
@@ -84,16 +82,8 @@ EXAMPLES = r"""
 
 - name: List system groups using specific instance
   goldyfruit.mlm.systemgroup_info:
-    instance: staging  # Use staging instance from credentials file
+    instance: staging
   register: staging_groups
-
-# Traditional method with explicit credentials (still supported)
-- name: List system groups with explicit credentials
-  goldyfruit.mlm.systemgroup_info:
-    url: https://suma.example.com
-    username: admin
-    password: admin
-  register: group_list
 """
 
 RETURN = r"""

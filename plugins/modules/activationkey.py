@@ -324,17 +324,6 @@ EXAMPLES = r"""
     key_name: "sles-15-key"
     state: absent
 
-# Traditional method with explicit credentials (still supported)
-- name: Create activation key with explicit credentials
-  goldyfruit.mlm.activationkey:
-    url: https://suma.example.com
-    username: admin
-    password: admin
-    key_name: "sles-15-key"
-    description: "SLES 15 activation key"
-    base_channel_label: "sles15-sp4-pool-x86_64"
-    usage_limit: 100
-    state: present
 """
 
 RETURN = r"""
