@@ -35,8 +35,10 @@ license_file: ""
 # requirements as 'namespace' and 'name'
 tags:
   - mlm
+  - smlm
+  - suma
   - suse
-  - systems-management
+  - systems
   - api
   - automation
 
