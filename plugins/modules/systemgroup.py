@@ -91,7 +91,6 @@ EXAMPLES = r"""
 # Using credentials configuration file (recommended)
 - name: Create a new system group using credentials file
   goldyfruit.mlm.systemgroup:
-    # No credentials needed - loaded from ~/.config/smlm/credentials.yaml
     name: "Production Servers"
     description: "Production web servers"
     state: present

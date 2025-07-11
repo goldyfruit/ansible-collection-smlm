@@ -8,7 +8,7 @@ namespace: goldyfruit
 name: mlm
 
 # The version of the collection. Must be compatible with semantic versioning
-version: 0.1.0
+version: 1.0.0
 
 # The path to the Markdown (.md) readme file. This path is relative to the root of the collection
 readme: README.md
@@ -52,7 +52,7 @@ dependencies: {}
 repository: https://github.com/goldyfruit/ansible-collection-smlm
 
 # The URL to any online docs
-documentation: https://documentation.suse.com/suma/5.1/api/suse-manager/index.html
+documentation: https://documentation.suse.com/multi-linux-manager/5.1/
 
 # The URL to the homepage of the collection/project
 homepage: https://www.suse.com/products/suse-manager/

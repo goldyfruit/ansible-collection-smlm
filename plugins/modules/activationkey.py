@@ -172,7 +172,6 @@ EXAMPLES = r"""
 # Using credentials configuration file (recommended)
 - name: Create a new activation key using credentials file
   goldyfruit.mlm.activationkey:
-    # No credentials needed - loaded from ~/.config/smlm/credentials.yaml
     key_name: "sles-15-key"
     description: "SLES 15 activation key"
     base_channel_label: "sles15-sp4-pool-x86_64"
