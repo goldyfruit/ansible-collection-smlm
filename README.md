@@ -11,7 +11,7 @@ Welcome to the most comprehensive Ansible collection for managing SUSE Multi-Lin
 
 ## 🎯 What's This All About?
 
-SUSE Manager Lifecycle Management (MLM) is powerful, but let's be honest – clicking through web interfaces gets old fast. This collection brings the power of automation to your fingertips, letting you manage activation keys, system groups, and more with the elegance of Ansible.
+SUSE Multi-Linux Manager (MLM) is powerful, but let's be honest – clicking through web interfaces gets old fast. This collection brings the power of automation to your fingertips, letting you manage activation keys, system groups, and more with the elegance of Ansible.
 
 Think of it as your personal DevOps assistant that never sleeps, never complains, and always remembers to apply security patches! 🛡️
 
