@@ -17,14 +17,7 @@ Ansible inventory plugin for SUSE Multi-Linux Manager.
 
 This plugin retrieves system information from a SUSE Multi-Linux Manager server
 and creates an Ansible inventory from it. It supports filtering systems based on
-their status, patch status (including reboot requirements), and system group
-membership. It also allows grouping systems by their patch status and system
-groups, and creating custom host variables using Jinja2 expressions.
-
-The plugin automatically adds systems to their respective system groups, allowing
-you to target systems by their group membership in playbooks. Systems requiring
-reboot after patching are identified using the listSuggestedReboot API endpoint
-and assigned a patch_status of "needs_reboot" for easy filtering and targeting.
+their status, patch status, and system group membership.
 """
 
 from __future__ import absolute_import, division, print_function
