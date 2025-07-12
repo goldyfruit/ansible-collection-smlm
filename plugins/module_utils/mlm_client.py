@@ -158,7 +158,8 @@ class MLMClient:
             # First, attempt to load credentials from file if it exists
             self._load_credentials()
 
-            # Get connection parameters with priority: module params > env vars
+            # Get connection parameters with priority: module params > env vars > credentials file
+            # Only override if not already set by credentials file
             if not self.url:
                 self.url = self._get_param("url", ENV_MLM_URL)
             if not self.username:
@@ -249,7 +250,18 @@ class MLMClient:
                 )
                 return False
 
-            instance_name = self.module.params.get("instance", config.get("default"))
+            # Get the instance name from module params or use default
+            instance_name = self.module.params.get("instance")
+            if not instance_name:
+                instance_name = config.get("default")
+
+            # If still no instance name and there's only one instance, use it
+            if not instance_name and "instances" in config:
+                instances = config["instances"]
+                if isinstance(instances, dict) and len(instances) == 1:
+                    instance_name = list(instances.keys())[0]
+
+            # Load credentials from the selected instance
             if "instances" in config:
                 instances = config["instances"]
                 if isinstance(instances, dict):
