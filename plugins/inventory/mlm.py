@@ -149,21 +149,15 @@ options:
 """
 
 EXAMPLES = r"""
-# Minimal example using environment variables for authentication
+# Minimal example using environment variables for authentication (recommended)
 plugin: goldyfruit.mlm.mlm
 
-# Example with explicit authentication
+# Example using credentials configuration file (recommended)
 plugin: goldyfruit.mlm.mlm
-url: https://mlm.example.com
-username: admin
-password: password
-validate_certs: true
+instance: production  # Use specific instance from ~/.config/smlm/credentials.yaml
 
-# Example with filters
+# Example with filters using credentials file
 plugin: goldyfruit.mlm.mlm
-url: https://mlm.example.com
-username: admin
-password: password
 filters:
   status: active
   patch_status: needs_patches
@@ -171,11 +165,8 @@ filters:
     - production
     - web_servers
 
-# Example with custom grouping and variables
+# Example with custom grouping and variables using credentials file
 plugin: goldyfruit.mlm.mlm
-url: https://mlm.example.com
-username: admin
-password: password
 group_by:
   - patch_status
   - system_groups
@@ -203,7 +194,9 @@ from ansible.errors import AnsibleParserError
 from ansible.plugins.inventory import BaseInventoryPlugin, Cacheable, Constructable
 
 try:
-    from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import MLMClient
+    from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import (
+        MLMClient,
+    )
 
     HAS_MLM_CLIENT = True
 except ImportError:
@@ -335,7 +328,11 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
 
         except Exception as e:
             # Raise an error with detailed information if we can't connect to the API
-            raise AnsibleParserError("Error fetching systems from MLM API: {}. Please check URL ({}), credentials, and network connectivity.".format(str(e), self.get_option('url')))
+            raise AnsibleParserError(
+                "Error fetching systems from MLM API: {}. Please check URL ({}), credentials, and network connectivity.".format(
+                    str(e), self.get_option("url")
+                )
+            )
 
     def _filter_systems(self, systems):
         """
@@ -356,7 +353,11 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
             return systems
 
         # Filter systems using list comprehension for efficiency
-        filtered_systems = [system for system in systems if self._system_matches_filters(system, filters)]
+        filtered_systems = [
+            system
+            for system in systems
+            if self._system_matches_filters(system, filters)
+        ]
 
         return filtered_systems
 
@@ -378,7 +379,7 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
         filter_handlers = {
             "status": self._filter_by_status,
             "patch_status": self._filter_by_patch_status,
-            "system_groups": self._filter_by_system_groups
+            "system_groups": self._filter_by_system_groups,
         }
 
         # Apply each filter
@@ -388,7 +389,9 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
                 if filter_value == "all":
                     continue
             # Handle 'all' value for system_groups filter
-            elif filter_key == "system_groups" and (filter_value == "all" or filter_value == ["all"]):
+            elif filter_key == "system_groups" and (
+                filter_value == "all" or filter_value == ["all"]
+            ):
                 continue
 
             # Use the appropriate filter handler if available
@@ -412,7 +415,7 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
         status_filters = {
             "active": lambda s: s.get("active", True),
             "inactive": lambda s: not s.get("active", True),
-            "all": lambda s: True
+            "all": lambda s: True,
         }
         return status_filters.get(filter_value, lambda s: True)(system)
 
@@ -431,7 +434,7 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
             "up_to_date": lambda s: s.get("patch_status") == "up_to_date",
             "needs_patches": lambda s: s.get("patch_status") == "needs_patches",
             "needs_reboot": lambda s: s.get("patch_status") == "needs_reboot",
-            "all": lambda s: True
+            "all": lambda s: True,
         }
         return patch_status_filters.get(filter_value, lambda s: True)(system)
 
@@ -565,7 +568,9 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
         """
         for field in ["registration_date", "created", "registered", "registrationDate"]:
             if field in system:
-                self.inventory.set_variable(inventory_hostname, "registration_date", str(system[field]))
+                self.inventory.set_variable(
+                    inventory_hostname, "registration_date", str(system[field])
+                )
                 break
 
     def _set_connection_variables(self, inventory_hostname, system):
@@ -592,7 +597,9 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
 
         # Set ansible_host if we found a suitable value
         if ansible_host:
-            self.inventory.set_variable(inventory_hostname, "ansible_host", ansible_host)
+            self.inventory.set_variable(
+                inventory_hostname, "ansible_host", ansible_host
+            )
 
     def _set_os_information(self, inventory_hostname, system):
         """
@@ -609,12 +616,14 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
                 os_field_mapping = {
                     "name": "os_name",
                     "version": "os_version",
-                    "family": "os_family"
+                    "family": "os_family",
                 }
 
                 for os_key, var_name in os_field_mapping.items():
                     if os_key in os_info and var_name not in system:
-                        self.inventory.set_variable(inventory_hostname, var_name, os_info[os_key])
+                        self.inventory.set_variable(
+                            inventory_hostname, var_name, os_info[os_key]
+                        )
             elif isinstance(os_info, str) and "os_name" not in system:
                 # If os is a string and os_name isn't set, use it as os_name
                 self.inventory.set_variable(inventory_hostname, "os_name", os_info)
@@ -637,7 +646,9 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
         if "patch_status" in group_by:
             # Use the patch_status field that was already set in get_systems_with_patch_status
             patch_status = system.get("patch_status", "up_to_date")
-            self._add_host_to_group(inventory_hostname, "patch_status_{}".format(patch_status))
+            self._add_host_to_group(
+                inventory_hostname, "patch_status_{}".format(patch_status)
+            )
 
         # Add to system groups - always add systems to their respective groups
         # regardless of group_by configuration to ensure groups are exposed
@@ -709,12 +720,13 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
         Returns:
             object: An object that mimics the AnsibleModule interface.
         """
+
         class AnsibleModuleAdapter:
             def __init__(self, params):
                 self.params = params
                 self.tmpdir = os.environ.get(
-                    'ANSIBLE_REMOTE_TMP',
-                    os.path.join(os.environ.get('HOME', '/tmp'), '.ansible/tmp')
+                    "ANSIBLE_REMOTE_TMP",
+                    os.path.join(os.environ.get("HOME", "/tmp"), ".ansible/tmp"),
                 )
 
             def fail_json(self, **kwargs):
@@ -751,13 +763,17 @@ class InventoryModule(BaseInventoryPlugin, Cacheable, Constructable):
             list: A list of system dictionaries.
         """
         # If caching is disabled, always get fresh data
-        if not use_cache or not self.get_option('cache'):
+        if not use_cache or not self.get_option("cache"):
             return self._get_systems_from_api()
 
         # Create a more specific cache key based on filters
         filters = self.get_option("filters") or {}
-        filter_str = "_".join("{}_{}".format(k, v) for k, v in sorted(filters.items()) if v != "all")
-        cache_key = "{}_{}".format(self.cache_key, filter_str) if filter_str else self.cache_key
+        filter_str = "_".join(
+            "{}_{}".format(k, v) for k, v in sorted(filters.items()) if v != "all"
+        )
+        cache_key = (
+            "{}_{}".format(self.cache_key, filter_str) if filter_str else self.cache_key
+        )
 
         # Try to get data from cache
         try:

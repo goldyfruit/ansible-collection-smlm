@@ -93,7 +93,7 @@ requirements:
 
 EXAMPLES = r'''
 # Using credentials configuration file (recommended)
-- name: Schedule a basic OpenSCAP XCCDF scan
+- name: Schedule a basic OpenSCAP XCCDF scan using credentials file
   goldyfruit.mlm.scap_scan:
     system_id: 1000010000
     state: present
@@ -104,6 +104,27 @@ EXAMPLES = r'''
 - name: Display the new scan ID
   ansible.builtin.debug:
     msg: "Scan ID: {{ scan_result.scan.id }}"
+
+- name: Schedule scan using specific instance
+  goldyfruit.mlm.scap_scan:
+    instance: staging  # Use staging instance from credentials file
+    system_id: 1000010000
+    state: present
+    profile: "xccdf_org.ssgproject.content_profile_common"
+    path: "/usr/share/xml/scap/ssg/content/ssg-sle15-xccdf.xml"
+  register: staging_scan_result
+
+# Using environment variables
+- name: Schedule scan using environment variables
+  goldyfruit.mlm.scap_scan:
+    system_id: 1000010000
+    state: present
+    profile: "xccdf_org.ssgproject.content_profile_common"
+    path: "/usr/share/xml/scap/ssg/content/ssg-sle15-xccdf.xml"
+  environment:
+    MLM_URL: "https://mlm.example.com"
+    MLM_USERNAME: "admin"
+    MLM_PASSWORD: "{{ vault_mlm_password }}"
 
 - name: Schedule an OpenSCAP XCCDF scan with additional OVAL files and scheduled date
   goldyfruit.mlm.scap_scan:
@@ -128,14 +149,17 @@ EXAMPLES = r'''
       extra_args: "--fetch-remote-resources"
   register: param_scan_result
 
-- name: Schedule scan using specific instance
+- name: Schedule scans for multiple systems
   goldyfruit.mlm.scap_scan:
-    instance: staging  # Use staging instance from credentials file
-    system_id: 1000010000
+    system_id: "{{ item }}"
     state: present
     profile: "xccdf_org.ssgproject.content_profile_common"
     path: "/usr/share/xml/scap/ssg/content/ssg-sle15-xccdf.xml"
-  register: staging_scan_result
+  loop:
+    - 1000010000
+    - 1000010001
+    - 1000010002
+  register: batch_scan_results
 
 - name: Delete an OpenSCAP XCCDF scan
   goldyfruit.mlm.scap_scan:

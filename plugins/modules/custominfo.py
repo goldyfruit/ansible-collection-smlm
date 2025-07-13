@@ -87,7 +87,7 @@ requirements:
 
 EXAMPLES = r"""
 # Using credentials configuration file (recommended)
-- name: Create a new custom information key
+- name: Create a new custom information key using credentials file
   goldyfruit.mlm.custominfo:
     key_label: "ASSET_TAG"
     description: "Asset tag for inventory tracking"
@@ -102,6 +102,24 @@ EXAMPLES = r"""
     state: present
   register: update_result
 
+- name: Create custom information key using specific instance
+  goldyfruit.mlm.custominfo:
+    instance: staging  # Use staging instance from credentials file
+    key_label: "STAGING_TAG"
+    description: "Asset tag for staging environment"
+    state: present
+
+# Using environment variables
+- name: Create custom information key using environment variables
+  goldyfruit.mlm.custominfo:
+    key_label: "PRODUCTION_TAG"
+    description: "Asset tag for production environment"
+    state: present
+  environment:
+    MLM_URL: "https://mlm.example.com"
+    MLM_USERNAME: "admin"
+    MLM_PASSWORD: "{{ vault_mlm_password }}"
+
 - name: Set a custom value for a system
   goldyfruit.mlm.custominfo:
     key_label: "INVENTORY_TAG"
@@ -110,14 +128,17 @@ EXAMPLES = r"""
     state: value
   register: value_result
 
-- name: Set custom value using specific instance
+- name: Set custom values for multiple systems
   goldyfruit.mlm.custominfo:
-    instance: staging  # Use staging instance from credentials file
     key_label: "INVENTORY_TAG"
-    system_id: 1000010000
-    value: "B67890"
+    system_id: "{{ item.id }}"
+    value: "{{ item.tag }}"
     state: value
-  register: staging_value_result
+  loop:
+    - { id: 1000010000, tag: "A12345" }
+    - { id: 1000010001, tag: "B67890" }
+    - { id: 1000010002, tag: "C24680" }
+  register: batch_value_results
 
 - name: Delete a custom information key
   goldyfruit.mlm.custominfo:

@@ -87,7 +87,8 @@ requirements:
 """
 
 EXAMPLES = r"""
-- name: Create a new software channel
+# Using credentials configuration file (recommended)
+- name: Create a new software channel using credentials file
   goldyfruit.mlm.channel:
     label: "my-custom-channel"
     name: "My Custom Channel"
@@ -96,7 +97,7 @@ EXAMPLES = r"""
     state: present
   register: channel_result
 
-- name: Create a child channel
+- name: Create a child channel using credentials file
   goldyfruit.mlm.channel:
     label: "my-custom-updates"
     name: "My Custom Updates"
@@ -104,6 +105,28 @@ EXAMPLES = r"""
     arch_label: "x86_64"
     parent_label: "my-custom-channel"
     state: present
+
+- name: Create channel using specific instance
+  goldyfruit.mlm.channel:
+    instance: staging  # Use staging instance from credentials file
+    label: "staging-channel"
+    name: "Staging Channel"
+    summary: "Channel for staging environment"
+    arch_label: "x86_64"
+    state: present
+
+# Using environment variables
+- name: Create channel using environment variables
+  goldyfruit.mlm.channel:
+    label: "prod-custom-channel"
+    name: "Production Custom Channel"
+    summary: "Production custom packages"
+    arch_label: "x86_64"
+    state: present
+  environment:
+    MLM_URL: "https://mlm.example.com"
+    MLM_USERNAME: "admin"
+    MLM_PASSWORD: "{{ vault_mlm_password }}"
 
 - name: Clone an existing channel
   goldyfruit.mlm.channel:
@@ -114,19 +137,22 @@ EXAMPLES = r"""
     state: cloned
   register: clone_result
 
+- name: Create multiple architecture channels
+  goldyfruit.mlm.channel:
+    label: "multi-arch-{{ item }}"
+    name: "Multi-Arch Channel {{ item | upper }}"
+    summary: "Multi-architecture channel for {{ item }}"
+    arch_label: "{{ item }}"
+    state: present
+  loop:
+    - x86_64
+    - aarch64
+  register: multi_arch_results
+
 - name: Delete a software channel
   goldyfruit.mlm.channel:
     label: "old-channel"
     state: absent
-
-- name: Create channel using specific instance
-  goldyfruit.mlm.channel:
-    instance: staging
-    label: "staging-channel"
-    name: "Staging Channel"
-    summary: "Channel for staging environment"
-    arch_label: "x86_64"
-    state: present
 """
 
 RETURN = r"""

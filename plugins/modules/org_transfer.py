@@ -52,7 +52,7 @@ requirements:
 
 EXAMPLES = r"""
 # Using credentials configuration file (recommended)
-- name: Transfer systems to another organization
+- name: Transfer systems to another organization using credentials file
   goldyfruit.mlm.org_transfer:
     to_org_id: 42
     system_ids:
@@ -69,7 +69,35 @@ EXAMPLES = r"""
       - 1001
       - 1002
       - 1003
-  register: transfer_result
+  register: staging_transfer_result
+
+# Using environment variables
+- name: Transfer systems using environment variables
+  goldyfruit.mlm.org_transfer:
+    to_org_id: 42
+    system_ids:
+      - 1001
+      - 1002
+      - 1003
+  environment:
+    MLM_URL: "https://mlm.example.com"
+    MLM_USERNAME: "admin"
+    MLM_PASSWORD: "{{ vault_mlm_password }}"
+  register: prod_transfer_result
+
+- name: Transfer single system
+  goldyfruit.mlm.org_transfer:
+    to_org_id: 42
+    system_ids:
+      - 1005
+  register: single_transfer_result
+
+- name: Transfer systems with conditional logic
+  goldyfruit.mlm.org_transfer:
+    to_org_id: "{{ target_org_id }}"
+    system_ids: "{{ systems_to_transfer }}"
+  when: systems_to_transfer | length > 0
+  register: conditional_transfer_result
 
 - name: Display transferred system IDs
   ansible.builtin.debug:

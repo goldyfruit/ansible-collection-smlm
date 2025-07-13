@@ -101,12 +101,12 @@ requirements:
 
 EXAMPLES = r"""
 # Using credentials configuration file (recommended)
-- name: Create a new organization
+- name: Create a new organization using credentials file
   goldyfruit.mlm.org:
     org_name: "Engineering"
     state: present
     admin_login: "eng_admin"
-    admin_password: "secure_password"
+    admin_password: "{{ vault_admin_password }}"
     first_name: "John"
     last_name: "Doe"
     email: "john.doe@example.com"
@@ -123,12 +123,39 @@ EXAMPLES = r"""
     org_name: "Staging Engineering"
     state: present
     admin_login: "staging_admin"
-    admin_password: "secure_password"
+    admin_password: "{{ vault_staging_admin_password }}"
     first_name: "Jane"
     last_name: "Smith"
     email: "jane.smith@example.com"
     prefix: "Ms."
   register: staging_org_result
+
+# Using environment variables
+- name: Create organization using environment variables
+  goldyfruit.mlm.org:
+    org_name: "Production Engineering"
+    state: present
+    admin_login: "prod_admin"
+    admin_password: "{{ vault_prod_admin_password }}"
+    first_name: "Admin"
+    last_name: "User"
+    email: "admin@example.com"
+    prefix: "Mr."
+  environment:
+    MLM_URL: "https://mlm.example.com"
+    MLM_USERNAME: "admin"
+    MLM_PASSWORD: "{{ vault_mlm_password }}"
+
+- name: Create organization with PAM authentication
+  goldyfruit.mlm.org:
+    org_name: "PAM Organization"
+    state: present
+    admin_login: "pam_admin"
+    admin_password: "{{ vault_pam_password }}"
+    first_name: "PAM"
+    last_name: "Administrator"
+    email: "pam.admin@example.com"
+    use_pam_auth: true
 
 - name: Delete an organization by ID
   goldyfruit.mlm.org:
