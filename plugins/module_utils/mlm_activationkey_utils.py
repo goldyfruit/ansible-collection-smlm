@@ -560,7 +560,7 @@ def manage_activation_key_channels(module, client):
             add_path = "/activationkey/addChildChannels"
             result = client.post(
                 add_path,
-                data={"key": actual_key_name, "channelLabels": channels_to_add},
+                data={"key": actual_key_name, "childChannelLabels": channels_to_add},
             )
             check_api_response(result, "Add channels to activation key", module)
             return (
@@ -605,7 +605,7 @@ def manage_activation_key_channels(module, client):
             remove_path = "/activationkey/removeChildChannels"
             result = client.post(
                 remove_path,
-                data={"key": actual_key_name, "channelLabels": channels_to_remove},
+                data={"key": actual_key_name, "childChannelLabels": channels_to_remove},
             )
             check_api_response(result, "Remove channels from activation key", module)
             return (
@@ -1050,7 +1050,7 @@ def manage_activation_key_entitlements(module, client):
                 "Entitlements {} removed from activation key '{}'".format(
                     entitlements_to_remove, key_name
                 ),
-            )
+t             )
         except Exception as e:
             module.fail_json(
                 msg="Failed to remove entitlements from activation key: {}".format(str(e))
