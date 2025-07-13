@@ -249,7 +249,7 @@ def schedule_xccdf_scan(module, client):
         )
         return True, scan_result, "OpenSCAP XCCDF scan scheduled successfully"
     except Exception as e:
-        module.fail_json(msg=f"Failed to schedule OpenSCAP XCCDF scan: {e}")
+        module.fail_json(msg="Failed to schedule OpenSCAP XCCDF scan: {}".format(e))
 
 
 def delete_xccdf_scan(module, client):
@@ -274,18 +274,18 @@ def delete_xccdf_scan(module, client):
 
     # Early return for non-existent scans
     if not scan or 'error' in scan:
-        return False, None, f"OpenSCAP XCCDF scan {scan_id} does not exist"
+        return False, None, "OpenSCAP XCCDF scan {} does not exist".format(scan_id)
 
     # Handle check mode
     if module.check_mode:
-        return True, None, f"OpenSCAP XCCDF scan {scan_id} would be deleted"
+        return True, None, "OpenSCAP XCCDF scan {} would be deleted".format(scan_id)
 
     # Delete the scan
     try:
         utils_delete_xccdf_scan(client, system_id, scan_id, module)
-        return True, None, f"OpenSCAP XCCDF scan {scan_id} deleted successfully"
+        return True, None, "OpenSCAP XCCDF scan {} deleted successfully".format(scan_id)
     except Exception as e:
-        module.fail_json(msg=f"Failed to delete OpenSCAP XCCDF scan: {e}")
+        module.fail_json(msg="Failed to delete OpenSCAP XCCDF scan: {}".format(e))
 
 
 def main():

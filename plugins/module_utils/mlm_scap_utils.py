@@ -117,7 +117,7 @@ def list_xccdf_scans(client, system_id):
     """
     try:
         # Make the API request
-        path = f"/system/scap/listXccdfScans?sid={system_id}"
+        path = "/system/scap/listXccdfScans?sid={}".format(system_id)
         response = client.get(path)
 
         # Handle case where response is None or not a list
@@ -154,7 +154,7 @@ def get_xccdf_scan_details(client, system_id, scan_id):
     """
     try:
         # Make the API request - only xid parameter needed according to API docs
-        path = f"/system/scap/getXccdfScanDetails?xid={scan_id}"
+        path = "/system/scap/getXccdfScanDetails?xid={}".format(scan_id)
         response = client.get(path)
 
         # Check if response is None or empty

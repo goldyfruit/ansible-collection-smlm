@@ -364,7 +364,7 @@ def main():
 
             # Optimize error checking with early return pattern
             if 'error' in scan:
-                module.fail_json(msg=f"Failed to get scan details: {scan['error']}")
+                module.fail_json(msg="Failed to get scan details: {}".format(scan['error']))
 
             module.exit_json(
                 changed=False,
@@ -384,7 +384,7 @@ def main():
                 scans=scans
             )
     except Exception as e:
-        module.fail_json(msg=f"Failed to get OpenSCAP XCCDF scan information: {e}")
+        module.fail_json(msg="Failed to get OpenSCAP XCCDF scan information: {}".format(e))
     finally:
         # Ensure cleanup always happens
         client.logout()

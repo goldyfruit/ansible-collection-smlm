@@ -20,7 +20,7 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: channel_info
-short_description: Gather information about software channels in SUSE Multi-Linux Manager
+short_description: Get information about software channels in SUSE Multi-Linux Manager
 description:
   - Retrieve information about software channels in SUSE Multi-Linux Manager.
   - List all channels or get detailed information about specific channels.
