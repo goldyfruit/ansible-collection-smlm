@@ -26,6 +26,7 @@ __metaclass__ = type
 import os
 import time
 import json
+from typing import Dict, List, Optional, Tuple, Union, Any
 from ansible.module_utils.urls import fetch_url
 from ansible.module_utils._text import to_native, to_text
 
@@ -88,7 +89,7 @@ DEFAULT_FIELD_MAPPINGS = {
 }
 
 
-def check_api_response(response, operation_name, module):
+def check_api_response(response: Union[Dict[str, Any], Any], operation_name: str, module: Any) -> Union[Dict[str, Any], Any]:
     """
     Check API response for success/failure and handle errors.
 
@@ -112,18 +113,54 @@ def check_api_response(response, operation_name, module):
         if response.get("success") is False:
             error_msg = response.get("message", "Unknown API error")
             module.fail_json(
-                msg="{} failed: {}".format(operation_name, error_msg),
+                msg=format_error_message(operation_name, error_msg),
                 api_response=response,
             )
 
         # Check for other error indicators
         if "error" in response:
             module.fail_json(
-                msg="{} failed: {}".format(operation_name, response["error"]),
+                msg=format_error_message(operation_name, response["error"]),
                 api_response=response,
             )
 
     return response
+
+
+def format_error_message(operation_name: str, error_details: str, context: Optional[str] = None) -> str:
+    """
+    Create a standardized error message format.
+
+    Args:
+        operation_name: The name of the operation that failed
+        error_details: Details about what went wrong
+        context: Optional additional context
+
+    Returns:
+        str: Formatted error message
+    """
+    if context:
+        return "SUSE Multi-Linux Manager API - {}: {} (Context: {})".format(
+            operation_name, error_details, context
+        )
+    return "SUSE Multi-Linux Manager API - {}: {}".format(operation_name, error_details)
+
+
+def format_success_message(operation_name: str, details: str, entity_type: Optional[str] = None) -> str:
+    """
+    Create a standardized success message format.
+
+    Args:
+        operation_name: The name of the operation that succeeded
+        details: Details about what was accomplished
+        entity_type: Optional type of entity that was operated on
+
+    Returns:
+        str: Formatted success message
+    """
+    if entity_type:
+        return "{} {} {}".format(entity_type, operation_name.lower(), details)
+    return "{} {}".format(operation_name, details)
 
 
 class MLMClient:
@@ -134,7 +171,7 @@ class MLMClient:
     requests, and handling common operations like pagination and error handling.
     """
 
-    def __init__(self, module):
+    def __init__(self, module: Any) -> None:
         """
         Initialize the MLM client.
 
@@ -431,12 +468,12 @@ class MLMClient:
                 msg="Missing required parameters: {}".format(", ".join(missing_params))
             )
 
-    def login(self):
+    def login(self) -> str:
         """
         Authenticate with the MLM API and get session cookies.
 
         Returns:
-            dict: The session cookies.
+            str: The session cookies.
 
         Raises:
             AnsibleFailJson: If authentication fails.
@@ -928,7 +965,7 @@ class MLMClient:
 
     # API methods for system management
 
-    def get_systems(self):
+    def get_systems(self) -> List[Dict[str, Any]]:
         """
         Get all systems (both active and inactive) from the MLM API.
 
