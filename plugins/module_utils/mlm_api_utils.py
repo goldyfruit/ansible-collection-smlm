@@ -23,9 +23,15 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import check_api_response
+from typing import Dict, List, Optional, Any, Union
 
-def get_entity_by_field(client, path, field, value, module=None):
+def get_entity_by_field(
+    client: Any,
+    path: str,
+    field: str,
+    value: Union[str, int],
+    module: Optional[Any] = None
+) -> Optional[Dict[str, Any]]:
     """
     Get an entity by a specific field value from a list endpoint.
 

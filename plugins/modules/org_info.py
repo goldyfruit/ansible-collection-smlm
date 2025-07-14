@@ -20,12 +20,12 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: org_info
-short_description: Get information about organizations in SUSE Manager
+short_description: Get information about organizations in SUSE Multi-Linux Manager
 description:
-  - Get information about organizations in SUSE Manager.
+  - Get information about organizations in SUSE Multi-Linux Manager.
   - If no organization identifier is provided, lists all organizations.
   - If an organization ID or name is provided, returns detailed information about that specific organization.
-  - This module uses the SUSE Manager API to retrieve organization information.
+  - This module uses the SUSE Multi-Linux Manager API to retrieve organization information.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -45,7 +45,7 @@ options:
     type: str
     required: false
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to view organization information.
   - If neither org_id nor org_name is provided, the module will list all organizations.
   - If either org_id or org_name is provided, the module will return detailed information about that specific organization.

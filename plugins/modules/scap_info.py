@@ -45,7 +45,7 @@ options:
     type: int
     required: false
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to view SCAP scan information.
   - If scan_id is not provided, the module will list all SCAP scans for the specified system.
   - If scan_id is provided, the module will return detailed information about that specific scan.

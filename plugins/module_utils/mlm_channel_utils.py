@@ -17,12 +17,13 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from typing import Dict, List, Optional, Any
 from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_api_utils import (
     get_entity_by_field,
 )
 
 
-def standardize_channel_data(channel_data):
+def standardize_channel_data(channel_data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Standardize the channel data format.
 
@@ -100,7 +101,7 @@ def standardize_channel_data(channel_data):
     }
 
 
-def list_channels(client):
+def list_channels(client: Any) -> List[Dict[str, Any]]:
     """
     List all channels.
 
@@ -131,7 +132,11 @@ def list_channels(client):
         raise Exception("Failed to list channels: {}".format(str(e)))
 
 
-def get_channel_details(client, channel_id=None, channel_label=None):
+def get_channel_details(
+    client: Any,
+    channel_id: Optional[int] = None,
+    channel_label: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
     """
     Get detailed information about a specific channel using getDetails method.
 
@@ -224,7 +229,7 @@ def get_channel_details(client, channel_id=None, channel_label=None):
         raise Exception("Failed to get channel details: {}".format(str(e)))
 
 
-def get_channel_by_label(client, channel_label):
+def get_channel_by_label(client: Any, channel_label: str) -> Optional[Dict[str, Any]]:
     """
     Get a channel by its label.
 

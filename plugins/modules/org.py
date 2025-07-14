@@ -17,13 +17,15 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from typing import Any
+
 DOCUMENTATION = r"""
 ---
 module: org
-short_description: Manage organizations in SUSE Manager
+short_description: Manage organizations in SUSE Multi-Linux Manager
 description:
-  - Create or delete organizations in SUSE Manager.
-  - This module uses the SUSE Manager API to manage organizations.
+  - Create or delete organizations in SUSE Multi-Linux Manager.
+  - This module uses the SUSE Multi-Linux Manager API to manage organizations.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -91,7 +93,7 @@ options:
     type: bool
     default: false
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to create or delete organizations.
   - When deleting an organization, all systems, users, and other resources associated with the organization will be deleted.
   - Deleting an organization is a destructive operation and cannot be undone.

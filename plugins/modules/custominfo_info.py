@@ -20,11 +20,11 @@ __metaclass__ = type
 DOCUMENTATION = r'''
 ---
 module: custominfo_info
-short_description: Get information about custom system information in SUSE Manager
+short_description: Get information about custom system information in SUSE Multi-Linux Manager
 description:
-  - List all custom information keys in SUSE Manager.
+  - List all custom information keys in SUSE Multi-Linux Manager.
   - Get all custom values for a specific system.
-  - This module uses the SUSE Manager API to retrieve custom system information.
+  - This module uses the SUSE Multi-Linux Manager API to retrieve custom system information.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -38,7 +38,7 @@ options:
     type: int
     required: false
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to view custom system information.
   - If system_id is not provided, the module will list all custom information keys.
   - If system_id is provided, the module will return all custom values for the specified system.

@@ -22,15 +22,29 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from typing import Dict, List, Optional, Any, Tuple
 from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import (
     check_api_response,
+    format_error_message,
 )
 from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_api_utils import (
     get_entity_by_field,
 )
+from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_common import (
+    standardize_api_response,
+    validate_required_params,
+    format_module_result,
+    check_mode_exit,
+    MLMAPIError,
+    handle_module_errors,
+)
 
 
-def get_organization(client, org_id=None, org_name=None):
+def get_organization(
+    client: Any,
+    org_id: Optional[int] = None,
+    org_name: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
     """
     Get an organization by ID or name.
 
@@ -53,7 +67,7 @@ def get_organization(client, org_id=None, org_name=None):
     return None
 
 
-def get_organization_by_name(client, org_name):
+def get_organization_by_name(client: Any, org_name: str) -> Optional[Dict[str, Any]]:
     """
     Get an organization by name.
 
@@ -67,7 +81,7 @@ def get_organization_by_name(client, org_name):
     return get_organization(client, org_name=org_name)
 
 
-def get_organization_by_id(client, org_id):
+def get_organization_by_id(client: Any, org_id: int) -> Optional[Dict[str, Any]]:
     """
     Get an organization by ID.
 
@@ -81,7 +95,7 @@ def get_organization_by_id(client, org_id):
     return get_organization(client, org_id=org_id)
 
 
-def standardize_org_data(org_data):
+def standardize_org_data(org_data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
     """
     Standardize the organization data format.
 
@@ -119,7 +133,7 @@ def standardize_org_data(org_data):
     return standardized_org
 
 
-def list_organizations(client):
+def list_organizations(client: Any) -> List[Dict[str, Any]]:
     """
     List all organizations.
 
@@ -143,7 +157,11 @@ def list_organizations(client):
     return [standardize_org_data(org) for org in orgs if isinstance(org, dict)]
 
 
-def get_organization_details(client, org_id=None, org_name=None):
+def get_organization_details(
+    client: Any,
+    org_id: Optional[int] = None,
+    org_name: Optional[str] = None
+) -> Dict[str, Any]:
     """
     Get detailed information about a specific organization.
 
@@ -188,7 +206,8 @@ def get_organization_details(client, org_id=None, org_name=None):
         }
 
 
-def create_organization(module, client):
+@handle_module_errors
+def create_organization(module: Any, client: Any) -> Tuple[bool, Optional[Dict[str, Any]], str]:
     """
     Create a new organization.
 
@@ -198,7 +217,13 @@ def create_organization(module, client):
 
     Returns:
         tuple: (changed, result, msg)
+
+    Raises:
+        MLMAPIError: If the API request fails.
     """
+    # Validate required parameters
+    required_params = ["org_name", "admin_login", "admin_password", "first_name", "last_name", "email"]
+    validate_required_params(module, required_params, "present")
 
     # Extract module parameters
     org_name = module.params["org_name"]
@@ -211,19 +236,19 @@ def create_organization(module, client):
     use_pam_auth = module.params["use_pam_auth"]
 
     # Check if the organization already exists
-    org = get_organization_by_name(client, org_name)
-    if org:
-        return False, org, "Organization '{}' already exists".format(org_name)
-
-    # If check_mode is enabled, return now
-    if module.check_mode:
-        return (
-            True,
-            {"name": org_name},
-            "Organization '{}' would be created".format(org_name),
+    try:
+        org = get_organization_by_name(client, org_name)
+        if org:
+            return format_module_result(False, org, "exists", org_name, "organization")
+    except Exception as e:
+        raise MLMAPIError(
+            format_error_message("check existing organization", str(e)),
+            response={"organization": org_name}
         )
 
-    # Create the organization using SUSE Multi-Linux Manager API
+    # Handle check mode
+    check_mode_exit(module, True, "created", org_name, "organization")
+
     # Prepare the request data
     create_data = {
         "orgName": org_name,
@@ -239,19 +264,24 @@ def create_organization(module, client):
     if prefix:
         create_data["prefix"] = prefix
 
-    # Make the API request
-    create_path = "/org/create"
-    result = client.post(create_path, data=create_data)
-    check_api_response(result, "Create organization", module)
+    # Make the API request with standardized response handling
+    try:
+        create_path = "/org/create"
+        result = client.post(create_path, data=create_data)
 
-    return (
-        True,
-        result,
-        "Organization '{}' created successfully".format(org_name),
-    )
+        # Standardize API response
+        standardized_result = standardize_api_response(result, "create organization")
+
+        return format_module_result(True, standardized_result, "created", org_name, "organization")
+
+    except Exception as e:
+        raise MLMAPIError(
+            format_error_message("create organization", str(e), context=f"org_name={org_name}"),
+            response={"create_data": create_data}
+        )
 
 
-def delete_organization(module, client):
+def delete_organization(module: Any, client: Any) -> Tuple[bool, Optional[Dict[str, Any]], str]:
     """
     Delete an organization.
 

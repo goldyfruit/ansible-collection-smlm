@@ -14,27 +14,28 @@
 # limitations under the License.
 
 """
-This module provides utility functions for working with OpenSCAP scans in SUSE Multi-Linux Manager.
+This module provides utility functions for working with SCAP scanning in SUSE Multi-Linux Manager.
 
-It contains common functions used by the scap_scan and scap_info modules to avoid code duplication.
+It contains common functions used by the scap_info and scap_scan modules to avoid code duplication.
 """
 
 from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from typing import Dict, List, Optional, Any
 from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import (
     check_api_response,
 )
 
 
-def standardize_scan_data(scan_data, include_results=False):
+def standardize_scan_data(scan_data: Dict[str, Any], include_results: bool = False) -> Dict[str, Any]:
     """
-    Standardize the scan data format.
+    Standardize the SCAP scan data format.
 
     Args:
-        scan_data (dict): The raw scan data from the API.
-        include_results (bool): Whether to include detailed results.
+        scan_data: The raw scan data from the API.
+        include_results: Whether to include detailed scan results.
 
     Returns:
         dict: The standardized scan data.
@@ -42,231 +43,159 @@ def standardize_scan_data(scan_data, include_results=False):
     if not scan_data:
         return {}
 
-    # Optimized field mapping using dictionary comprehension
-    basic_field_map = {
-        "id": "xid",
-        "system_id": "sid",
-        "action_id": "action_id",
-        "profile": "profile",
-        "path": "path",
-        "command_line_arguments": "oscap_parameters",
-        "oval_files": "ovalfiles",
-        "started": "start_time",
-        "completed": "end_time",
-        "created": "start_time",
-        "benchmark_identifier": "benchmark",
-        "benchmark_version": "benchmark_version",
-        "profile_identifier": "profile",
-        "profile_title": "profile_title",
-        "test_result": "test_result",
-        "error_details": "errors",
-        "deletable": "deletable"
-    }
-
-    # Efficiently map basic fields
     standardized_scan = {
-        key: scan_data.get(source_key)
-        for key, source_key in basic_field_map.items()
-        if scan_data.get(source_key) is not None
+        "id": scan_data.get("id"),
+        "name": scan_data.get("name", ""),
+        "path": scan_data.get("path", ""),
+        "profile": scan_data.get("profile", ""),
+        "test_result": scan_data.get("testResult", ""),
+        "created": scan_data.get("created", ""),
+        "modified": scan_data.get("modified", ""),
+        "benchmark": scan_data.get("benchmark", ""),
+        "benchmark_version": scan_data.get("benchmarkVersion", ""),
+        "profile_title": scan_data.get("profileTitle", ""),
+        "oval_files": scan_data.get("ovalFiles", []),
+        "parameters": scan_data.get("parameters", {}),
     }
 
-    # Add detailed results if requested
-    if include_results:
-        # Direct field mappings for result data
-        result_field_map = {
-            "results": "results",
-            "result_files": "resultFiles",
-            "test_results": "testResults",
-            "rule_results": "ruleResults"
-        }
-
-        # Add result fields that exist
-        standardized_scan.update({
-            key: scan_data[source_key]
-            for key, source_key in result_field_map.items()
-            if source_key in scan_data
-        })
-
-        # Add scoring and detailed fields efficiently
-        scoring_fields = {
-            "score", "maxScore", "passedRules", "failedRules", "errorRules",
-            "unknownRules", "notApplicableRules", "notCheckedRules", "notSelectedRules",
-            "informationalRules", "fixedRules", "totalRules", "parameters",
-            "returnCode", "stderr", "stdout"
-        }
-
-        standardized_scan.update({
-            field: scan_data[field]
-            for field in scoring_fields
-            if field in scan_data
-        })
+    # Add results if requested
+    if include_results and "results" in scan_data:
+        standardized_scan["results"] = scan_data["results"]
 
     return standardized_scan
 
 
-def list_xccdf_scans(client, system_id):
+def list_xccdf_scans(client: Any, system_id: int) -> List[Dict[str, Any]]:
     """
-    List all OpenSCAP XCCDF scans for a system.
+    List XCCDF scans for a system.
 
     Args:
         client: The MLM client.
-        system_id: The ID of the system to get scans for.
+        system_id: The ID of the system.
 
     Returns:
-        list: A list of scan dictionaries.
+        list: A list of standardized scan data.
     """
-    try:
-        # Make the API request
-        path = "/system/scap/listXccdfScans?sid={}".format(system_id)
-        response = client.get(path)
+    path = "/system/scap/listXccdfScans"
+    params = {"sid": system_id}
+    scans = client.get(path, params=params)
 
-        # Handle case where response is None or not a list
-        if not response:
-            return []
-
-        # Extract data from wrapper if needed
-        if isinstance(response, dict) and "result" in response:
-            response = response["result"]
-        elif not isinstance(response, list):
-            return []
-
-        # Efficiently standardize scan data using list comprehension
-        return [
-            standardize_scan_data(scan)
-            for scan in response
-            if isinstance(scan, dict)
-        ]
-    except Exception:
+    if not scans:
         return []
 
+    if isinstance(scans, dict) and "result" in scans:
+        scans = scans["result"]
 
-def get_xccdf_scan_details(client, system_id, scan_id):
+    if not isinstance(scans, list):
+        return []
+
+    return [standardize_scan_data(scan) for scan in scans if isinstance(scan, dict)]
+
+
+def get_xccdf_scan_details(client: Any, system_id: int, scan_id: int) -> Optional[Dict[str, Any]]:
     """
-    Get detailed information about a specific OpenSCAP XCCDF scan.
+    Get detailed information about a specific XCCDF scan.
 
     Args:
         client: The MLM client.
-        system_id: The ID of the system the scan was run on.
-        scan_id: The ID of the scan to get details for.
+        system_id: The ID of the system.
+        scan_id: The ID of the scan.
 
     Returns:
-        dict: The scan details.
+        dict: The standardized scan details, or None if not found.
     """
     try:
-        # Make the API request - only xid parameter needed according to API docs
-        path = "/system/scap/getXccdfScanDetails?xid={}".format(scan_id)
-        response = client.get(path)
+        path = "/system/scap/getXccdfScanDetails"
+        params = {"sid": system_id, "xid": scan_id}
+        scan_details = client.get(path, params=params)
 
-        # Check if response is None or empty
-        if not response:
-            return {
-                "id": scan_id,
-                "system_id": system_id,
-                "error": "Scan not found or no details available"
-            }
+        if scan_details:
+            return standardize_scan_data(scan_details, include_results=True)
 
-        # Extract scan data from wrapper efficiently
-        scan_data = (
-            response.get("result", response)
-            if isinstance(response, dict) and "result" in response
-            else response
-        )
-
-        # Standardize and return the scan data
-        return standardize_scan_data(scan_data, include_results=True)
-    except Exception as e:
-        return {
-            "id": scan_id,
-            "system_id": system_id,
-            "error": str(e)
-        }
+        return None
+    except Exception:
+        return None
 
 
-def schedule_xccdf_scan(client, system_id, profile, path, parameters=None, oval_files=None, date=None, module=None):
+def schedule_xccdf_scan(
+    client: Any,
+    system_id: int,
+    profile: str,
+    path: str,
+    parameters: Optional[Dict[str, str]] = None,
+    oval_files: Optional[List[str]] = None,
+    date: Optional[str] = None,
+    module: Optional[Any] = None
+) -> Dict[str, Any]:
     """
-    Schedule an OpenSCAP XCCDF scan.
+    Schedule an XCCDF scan.
 
     Args:
         client: The MLM client.
-        system_id: The ID of the system to scan.
-        profile: The XCCDF profile to use.
-        path: The path to the XCCDF document.
+        system_id: The ID of the system.
+        profile: The SCAP profile to use.
+        path: The path to the SCAP content.
         parameters: Optional parameters for the scan.
-        oval_files: Optional list of additional OVAL files for the oscap tool.
-        date: Optional date to schedule the action (ISO8601 format).
-        module: The AnsibleModule instance for error handling (optional).
+        oval_files: Optional list of OVAL files.
+        date: Optional date to schedule the scan (ISO format).
+        module: The AnsibleModule instance for error handling.
 
     Returns:
-        dict: The scan result.
+        dict: The result of the schedule operation.
     """
-    # Prepare the oscap parameters string
-    oscap_params = "--profile {}".format(profile)
+    api_path = "/system/scap/scheduleXccdfScan"
 
-    # Add additional parameters if provided
-    if parameters:
-        for key, value in parameters.items():
-            oscap_params += " --{} {}".format(key, value)
-
-    # Add oval_files if provided
-    if oval_files:
-        for oval_file in oval_files:
-            oscap_params += " --oval-definitions {}".format(oval_file)
-
-    # Prepare the request data
+    # Prepare the data for the API call
     data = {
         "sid": system_id,
-        "xccdfPath": path,
-        "oscapParams": oscap_params
+        "path": path,
+        "profile": profile,
     }
 
-    # Add date if provided
+    # Add optional parameters
+    if parameters:
+        data["parameters"] = parameters
+    if oval_files:
+        data["ovalFiles"] = oval_files
     if date:
         data["date"] = date
 
     # Make the API request
-    api_path = "/system/scap/scheduleXccdfScan"
     result = client.post(api_path, data=data)
+
+    # Check the API response if module is provided
     if module:
         check_api_response(result, "Schedule XCCDF scan", module)
 
-    # Extract the scan ID from the result
-    scan_id = None
-    if isinstance(result, dict):
-        scan_id = result.get("id")
-    elif isinstance(result, int):
-        scan_id = result
-
-    # Create the scan result
-    scan_result = {
-        "id": scan_id,
-        "profile": profile,
-        "path": path,
-        "parameters": parameters or {},
-        "oval_files": oval_files,
-        "date": date
-    }
-
-    return scan_result
+    return result
 
 
-def delete_xccdf_scan(client, system_id, scan_id, module=None):
+def delete_xccdf_scan(client: Any, system_id: int, scan_id: int, module: Optional[Any] = None) -> Dict[str, Any]:
     """
-    Delete an OpenSCAP XCCDF scan.
+    Delete an XCCDF scan.
 
     Args:
         client: The MLM client.
-        system_id: The ID of the system the scan was run on.
+        system_id: The ID of the system.
         scan_id: The ID of the scan to delete.
-        module: The AnsibleModule instance for error handling (optional).
+        module: The AnsibleModule instance for error handling.
 
     Returns:
-        bool: True if the scan was deleted successfully.
+        dict: The result of the delete operation.
     """
+    api_path = "/system/scap/deleteXccdfScan"
+
+    # Prepare the data for the API call
+    data = {
+        "sid": system_id,
+        "xid": scan_id,
+    }
+
     # Make the API request
-    path = "/system/scap/deleteXccdfScan"
-    result = client.post(path, data={"sid": system_id, "xid": scan_id})
+    result = client.post(api_path, data=data)
+
+    # Check the API response if module is provided
     if module:
         check_api_response(result, "Delete XCCDF scan", module)
 
-    # If no exception was raised, the scan was deleted successfully
-    return True
+    return result

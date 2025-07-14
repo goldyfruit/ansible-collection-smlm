@@ -17,14 +17,16 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from typing import Any, Tuple, Dict, Optional
+
 DOCUMENTATION = r"""
 ---
 module: custominfo
-short_description: Manage custom system information in SUSE Manager
+short_description: Manage custom system information in SUSE Multi-Linux Manager
 description:
-  - Create, update, or delete custom information keys in SUSE Manager.
+  - Create, update, or delete custom information keys in SUSE Multi-Linux Manager.
   - Set custom information values for systems.
-  - This module uses the SUSE Manager API to manage custom system information.
+  - This module uses the SUSE Multi-Linux Manager API to manage custom system information.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -73,7 +75,7 @@ options:
     choices: [ present, absent, value ]
     default: present
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to manage custom system information.
   - Custom information keys must have unique labels.
   - When setting a custom value, the key must already exist.
@@ -217,7 +219,7 @@ from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_custominfo_util
 )
 
 
-def create_or_update_key(module, client):
+def create_or_update_key(module: Any, client: Any) -> Tuple[bool, Optional[Dict[str, Any]], str]:
     """
     Create or update a custom information key.
 
@@ -360,7 +362,7 @@ def create_or_update_key(module, client):
         )
 
 
-def delete_key(module, client):
+def delete_key(module: Any, client: Any) -> Tuple[bool, Optional[Dict[str, Any]], str]:
     """
     Delete a custom information key.
 
@@ -416,7 +418,7 @@ def delete_key(module, client):
         module.fail_json(msg="Failed to delete custom information key: {}".format(str(e)))
 
 
-def set_value(module, client):
+def set_value(module: Any, client: Any) -> Tuple[bool, Optional[Dict[str, Any]], str]:
     """
     Set a custom value for a system.
 

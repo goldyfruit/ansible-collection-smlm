@@ -20,10 +20,10 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: org_transfer
-short_description: Transfer systems between organizations in SUSE Manager
+short_description: Transfer systems between organizations in SUSE Multi-Linux Manager
 description:
-  - Transfer systems from one organization to another in SUSE Manager.
-  - This module uses the SUSE Manager API to transfer systems between organizations.
+  - Transfer systems from one organization to another in SUSE Multi-Linux Manager.
+  - This module uses the SUSE Multi-Linux Manager API to transfer systems between organizations.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -41,9 +41,9 @@ options:
     elements: int
     required: true
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to transfer systems.
-  - If executed by a SUSE Manager administrator, the systems will be transferred from their current organization to the organization specified by to_org_id.
+  - If executed by a SUSE Multi-Linux Manager administrator, the systems will be transferred from their current organization to the organization specified by to_org_id.
   - If executed by an organization administrator, the systems must exist in the same organization as that administrator and the systems will be transferred to the organization specified by to_org_id.
   - In any scenario, the origination and destination organizations must be defined in a trust.
 requirements:

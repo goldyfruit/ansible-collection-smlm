@@ -23,12 +23,10 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
-from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import (
-    check_api_response,
-)
+from typing import Dict, List, Optional, Any, Union
 
 
-def create_custom_key(client, label, description):
+def create_custom_key(client: Any, label: str, description: str) -> int:
     """
     Create a custom information key.
 
@@ -47,7 +45,7 @@ def create_custom_key(client, label, description):
     return result
 
 
-def delete_custom_key(client, key_label):
+def delete_custom_key(client: Any, key_label: str) -> int:
     """
     Delete a custom information key.
 
@@ -65,7 +63,7 @@ def delete_custom_key(client, key_label):
     return result
 
 
-def update_custom_key(client, old_label, new_label, new_description):
+def update_custom_key(client: Any, old_label: str, new_label: str, new_description: str) -> int:
     """
     Update a custom information key.
 
@@ -118,7 +116,7 @@ def update_custom_key(client, old_label, new_label, new_description):
         return result
 
 
-def list_all_keys(client):
+def list_all_keys(client: Any) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
     """
     List all custom information keys.
 
@@ -151,7 +149,7 @@ def list_all_keys(client):
     return result or []
 
 
-def set_custom_value(client, system_id, key_label, value):
+def set_custom_value(client: Any, system_id: int, key_label: str, value: str) -> int:
     """
     Set a custom value for a system.
 
@@ -172,7 +170,7 @@ def set_custom_value(client, system_id, key_label, value):
     return result
 
 
-def get_custom_values(client, system_id):
+def get_custom_values(client: Any, system_id: int) -> List[Dict[str, Any]]:
     """
     Get all custom values for a system.
 
@@ -195,7 +193,7 @@ def get_custom_values(client, system_id):
     return result or []
 
 
-def standardize_custom_key(key_data):
+def standardize_custom_key(key_data: Union[Dict[str, Any], str, None]) -> Dict[str, Any]:
     """
     Standardize the custom key data format.
 
@@ -232,7 +230,7 @@ def standardize_custom_key(key_data):
     return standardized_key
 
 
-def standardize_custom_value(value_data):
+def standardize_custom_value(value_data: Union[Dict[str, Any], str, None]) -> Dict[str, Any]:
     """
     Standardize the custom value data format.
 

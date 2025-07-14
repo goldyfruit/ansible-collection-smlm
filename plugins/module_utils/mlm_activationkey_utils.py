@@ -22,6 +22,7 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from typing import Dict, List, Optional, Tuple, Union, Any
 from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import (
     check_api_response,
 )
@@ -30,7 +31,7 @@ from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_api_utils impor
 )
 
 
-def get_activation_key(client, key_id=None, key_name=None):
+def get_activation_key(client: Any, key_id: Optional[int] = None, key_name: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     Get an activation key by ID or name.
 
@@ -1050,7 +1051,7 @@ def manage_activation_key_entitlements(module, client):
                 "Entitlements {} removed from activation key '{}'".format(
                     entitlements_to_remove, key_name
                 ),
-t             )
+            )
         except Exception as e:
             module.fail_json(
                 msg="Failed to remove entitlements from activation key: {}".format(str(e))

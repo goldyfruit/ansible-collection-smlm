@@ -20,10 +20,10 @@ __metaclass__ = type
 DOCUMENTATION = r"""
 ---
 module: org_update
-short_description: Update the name of an organization in SUSE Manager
+short_description: Update the name of an organization in SUSE Multi-Linux Manager
 description:
-  - Update the name of an organization in SUSE Manager.
-  - This module uses the SUSE Manager API to update organization names.
+  - Update the name of an organization in SUSE Multi-Linux Manager.
+  - This module uses the SUSE Multi-Linux Manager API to update organization names.
 author: Gaëtan Trellu (@goldyfruit) <gaetan.trellu@suse.com>
 version_added: '1.0.0'
 extends_documentation_fragment:
@@ -41,7 +41,7 @@ options:
     type: str
     required: true
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to update organizations.
 requirements:
   - python >= 3.6

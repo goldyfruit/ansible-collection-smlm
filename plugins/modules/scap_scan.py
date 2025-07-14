@@ -17,6 +17,8 @@ from __future__ import absolute_import, division, print_function
 
 __metaclass__ = type
 
+from typing import Any
+
 DOCUMENTATION = r'''
 ---
 module: scap_scan
@@ -83,7 +85,7 @@ options:
     type: str
     required: false
 notes:
-  - This module requires the SUSE Manager API to be accessible from the Ansible controller.
+  - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to manage SCAP scans.
   - When scheduling a scan, the system must have the SCAP capability enabled.
   - When deleting a scan, all associated data will be deleted and cannot be recovered.
