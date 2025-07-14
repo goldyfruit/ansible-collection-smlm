@@ -5,7 +5,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/goldyfruit/ansible-collection-smlm.svg)](https://github.com/goldyfruit/ansible-collection-smlm)
 [![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen.svg)](https://github.com/goldyfruit/ansible-collection-smlm)
 
-> **Making SUSE Manager Lifecycle Management as easy as ordering pizza! 🍕**
+> **Making SUSE Multi-Linux Manager as easy as ordering pizza! 🍕**
 
 Welcome to the most comprehensive Ansible collection for managing SUSE Multi-Linux Manager (SMLM)! This collection transforms complex system management tasks into simple, declarative playbooks that even your coffee machine could understand. ☕
 
@@ -168,7 +168,7 @@ compose:
 ```yaml
 ---
 - name: 🎯 Target systems discovered by MLM inventory
-  hosts: group_web_servers  # Systems in "Web Servers" group
+  hosts: group_web_servers # Systems in "Web Servers" group
   tasks:
     - name: 📊 Show system information
       debug:
