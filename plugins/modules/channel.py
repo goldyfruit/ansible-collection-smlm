@@ -93,7 +93,7 @@ EXAMPLES = r"""
     label: "my-custom-channel"
     name: "My Custom Channel"
     summary: "Custom packages for my organization"
-    arch_label: "x86_64"
+    arch_label: "channel-x86_64"
     state: present
   register: channel_result
 
@@ -102,7 +102,7 @@ EXAMPLES = r"""
     label: "my-custom-updates"
     name: "My Custom Updates"
     summary: "Updates for my custom channel"
-    arch_label: "x86_64"
+    arch_label: "channel-x86_64"
     parent_label: "my-custom-channel"
     state: present
 
@@ -112,7 +112,7 @@ EXAMPLES = r"""
     label: "staging-channel"
     name: "Staging Channel"
     summary: "Channel for staging environment"
-    arch_label: "x86_64"
+    arch_label: "channel-x86_64"
     state: present
 
 # Using environment variables
@@ -121,7 +121,7 @@ EXAMPLES = r"""
     label: "prod-custom-channel"
     name: "Production Custom Channel"
     summary: "Production custom packages"
-    arch_label: "x86_64"
+    arch_label: "channel-x86_64"
     state: present
   environment:
     MLM_URL: "https://mlm.example.com"
@@ -145,8 +145,8 @@ EXAMPLES = r"""
     arch_label: "{{ item }}"
     state: present
   loop:
-    - x86_64
-    - aarch64
+    - channel-x86_64
+    - channel-aarch64
   register: multi_arch_results
 
 - name: Delete a software channel
@@ -184,7 +184,7 @@ channel:
     arch_name:
       description: Architecture name.
       type: str
-      sample: "x86_64"
+      sample: "channel-x86_64"
     last_modified:
       description: Last modification date.
       type: str
@@ -253,7 +253,9 @@ def main():
     argument_spec = mlm_argument_spec()
     argument_spec.update(
         label=dict(type="str", required=True),
-        state=dict(type="str", default="present", choices=["present", "absent", "cloned"]),
+        state=dict(
+            type="str", default="present", choices=["present", "absent", "cloned"]
+        ),
         name=dict(type="str", required=False),
         summary=dict(type="str", required=False),
         arch_label=dict(type="str", required=False),
