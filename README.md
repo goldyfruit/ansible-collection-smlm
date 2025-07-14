@@ -1,19 +1,19 @@
-# 🚀 Ansible Collection: goldyfruit.mlm
+# Ansible Collection: goldyfruit.mlm
 
 [![Ansible Collection](https://img.shields.io/badge/ansible-collection-blue.svg)](https://galaxy.ansible.com/goldyfruit/mlm)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/goldyfruit/ansible-collection-smlm.svg)](https://github.com/goldyfruit/ansible-collection-smlm)
 [![Maintained](https://img.shields.io/badge/maintained-yes-brightgreen.svg)](https://github.com/goldyfruit/ansible-collection-smlm)
 
-> **Making SUSE Multi-Linux Manager as easy as ordering pizza! 🍕**
+An Ansible collection for managing SUSE Multi-Linux Manager (SMLM) infrastructure through automation.
 
-Welcome to the most comprehensive Ansible collection for managing SUSE Multi-Linux Manager (SMLM)! This collection transforms complex system management tasks into simple, declarative playbooks that even your coffee machine could understand. ☕
+This collection provides modules and plugins to help automate common SUSE Multi-Linux Manager tasks like managing activation keys, system groups, channels, and more using declarative Ansible playbooks.
 
-## 🎯 What's This All About?
+## Overview
 
-SUSE Multi-Linux Manager (MLM) is powerful, but let's be honest – clicking through web interfaces gets old fast. This collection brings the power of automation to your fingertips, letting you manage activation keys, system groups, and more with the elegance of Ansible.
+SUSE Multi-Linux Manager (MLM) is a powerful system management platform. This collection aims to simplify common management tasks by providing Ansible modules that can automate operations that would otherwise require manual interaction with the web interface.
 
-Think of it as your personal DevOps assistant that never sleeps, never complains, and always remembers to apply security patches! 🛡️
+The collection focuses on providing reliable, idempotent modules that integrate well with existing Ansible workflows.
 
 ## 🎁 What's In The Box?
 
