@@ -83,7 +83,7 @@ class MLMModuleBase:
 
         except Exception as e:
             error_msg = format_error_message(
-                f"manage {self.entity_type}",
+                "manage {}".format(self.entity_type),
                 str(e),
                 context=self.module.params.get("state", "unknown")
             )
@@ -133,7 +133,7 @@ def standardize_api_response(
         MLMAPIError: If the response is invalid or indicates an error.
     """
     if response is None:
-        raise MLMAPIError(f"No response received for {operation_name}")
+        raise MLMAPIError("No response received for {}".format(operation_name))
 
     # Handle wrapped responses with "result" key
     if isinstance(response, dict) and "result" in response:
@@ -142,24 +142,24 @@ def standardize_api_response(
         # Check for API errors even in wrapped responses
         if response.get("success") is False:
             error_msg = response.get("message", "Unknown API error")
-            raise MLMAPIError(f"{operation_name} failed: {error_msg}", response=response)
+            raise MLMAPIError("{} failed: {}".format(operation_name, error_msg), response=response)
 
         response = actual_response
 
     # Handle error responses
     if isinstance(response, dict):
         if response.get("error"):
-            raise MLMAPIError(f"{operation_name} failed: {response['error']}", response=response)
+            raise MLMAPIError("{} failed: {}".format(operation_name, response['error']), response=response)
 
         if response.get("success") is False:
             error_msg = response.get("message", "Unknown API error")
-            raise MLMAPIError(f"{operation_name} failed: {error_msg}", response=response)
+            raise MLMAPIError("{} failed: {}".format(operation_name, error_msg), response=response)
 
     # Validate expected type
     if expected_type == "dict" and not isinstance(response, dict):
         if response is None or (isinstance(response, list) and len(response) == 0):
             return {}
-        raise MLMAPIError(f"{operation_name} returned unexpected type: expected dict, got {type(response).__name__}")
+        raise MLMAPIError("{} returned unexpected type: expected dict, got {}".format(operation_name, type(response).__name__))
 
     if expected_type == "list" and not isinstance(response, list):
         if response is None:
@@ -167,7 +167,7 @@ def standardize_api_response(
         if isinstance(response, dict):
             # Sometimes APIs return a single item as dict instead of list
             return [response]
-        raise MLMAPIError(f"{operation_name} returned unexpected type: expected list, got {type(response).__name__}")
+        raise MLMAPIError("{} returned unexpected type: expected list, got {}".format(operation_name, type(response).__name__))
 
     return response
 
@@ -225,10 +225,10 @@ def validate_required_params(module: Any, required_params: List[str], state: Opt
             missing_params.append(param)
 
     if missing_params:
-        context = f"state={state}" if state else "current operation"
+        context = "state={}".format(state) if state else "current operation"
         error_msg = format_error_message(
             "parameter validation",
-            f"Missing required parameters: {', '.join(missing_params)}",
+            "Missing required parameters: {}".format(', '.join(missing_params)),
             context=context
         )
         module.fail_json(msg=error_msg, missing_parameters=missing_params)
@@ -255,15 +255,15 @@ def format_module_result(
         Tuple of (changed, result, msg).
     """
     if changed and operation in ["created", "updated"]:
-        msg = format_success_message(operation, f"'{entity_name}' successfully", entity_type)
+        msg = format_success_message(operation, "'{} successfully".format(entity_name), entity_type)
     elif changed and operation == "deleted":
-        msg = format_success_message("deleted", f"'{entity_name}' successfully", entity_type)
+        msg = format_success_message("deleted", "'{} successfully".format(entity_name), entity_type)
     elif not changed and operation == "exists":
-        msg = f"{entity_type.title()} '{entity_name}' already exists with specified configuration"
+        msg = "{} '{}' already exists with specified configuration".format(entity_type.title(), entity_name)
     elif not changed and operation == "not_found":
-        msg = f"{entity_type.title()} '{entity_name}' does not exist"
+        msg = "{} '{}' does not exist".format(entity_type.title(), entity_name)
     else:
-        msg = f"{entity_type.title()} '{entity_name}' {operation}"
+        msg = "{} '{}' {}".format(entity_type.title(), entity_name, operation)
 
     return changed, entity_data, msg
 
@@ -290,7 +290,7 @@ def extract_entity_identifier(module: Any, id_param: str, name_param: str) -> Tu
         except (ValueError, TypeError):
             error_msg = format_error_message(
                 "parameter validation",
-                f"Invalid {id_param}: must be a valid integer"
+                "Invalid {}: must be a valid integer".format(id_param)
             )
             module.fail_json(msg=error_msg, invalid_parameter=id_param)
 
@@ -329,8 +329,8 @@ def check_mode_exit(module: Any, changed: bool, operation: str, entity_name: str
     """
     if module.check_mode:
         if changed:
-            msg = f"{entity_type.title()} '{entity_name}' would be {operation}"
+            msg = "{} '{}' would be {}".format(entity_type.title(), entity_name, operation)
         else:
-            msg = f"No changes needed for {entity_type} '{entity_name}'"
+            msg = "No changes needed for {} '{}'".format(entity_type, entity_name)
 
         module.exit_json(changed=changed, msg=msg)

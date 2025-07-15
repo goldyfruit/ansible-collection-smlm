@@ -276,7 +276,7 @@ def create_organization(module: Any, client: Any) -> Tuple[bool, Optional[Dict[s
 
     except Exception as e:
         raise MLMAPIError(
-            format_error_message("create organization", str(e), context=f"org_name={org_name}"),
+            format_error_message("create organization", str(e), context="org_name={}".format(org_name)),
             response={"create_data": create_data}
         )
 

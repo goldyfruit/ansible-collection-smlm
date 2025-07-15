@@ -77,7 +77,7 @@ def list_channel_architectures(client: Any) -> List[Dict[str, Any]]:
             if isinstance(arch, dict)
         ]
     except Exception as e:
-        raise Exception(f"Failed to list channel architectures: {str(e)}")
+        raise Exception("Failed to list channel architectures: {}".format(str(e)))
 
 
 def get_channel_architecture_by_label(client: Any, arch_label: str) -> Optional[Dict[str, Any]]:
@@ -104,7 +104,7 @@ def get_channel_architecture_by_label(client: Any, arch_label: str) -> Optional[
 
         return None
     except Exception as e:
-        raise Exception(f"Failed to get channel architecture by label: {str(e)}")
+        raise Exception("Failed to get channel architecture by label: {}".format(str(e)))
 
 
 def standardize_channel_data(channel_data: Optional[Dict[str, Any]]) -> Dict[str, Any]:
@@ -351,10 +351,10 @@ def create_channel(module: Any, client: Any) -> tuple:
     existing_channel = get_channel_by_label(client, label)
 
     if existing_channel:
-        return False, standardize_channel_data(existing_channel), f"Channel '{label}' already exists"
+        return False, standardize_channel_data(existing_channel), "Channel '{}' already exists".format(label)
 
     if module.check_mode:
-        return True, None, f"Channel '{label}' would be created"
+        return True, None, "Channel '{}' would be created".format(label)
 
     try:
         # Create the channel using the API according to documentation
@@ -381,21 +381,21 @@ def create_channel(module: Any, client: Any) -> tuple:
             # Get the created channel
             created_channel = get_channel_by_label(client, label)
             if created_channel:
-                return True, standardize_channel_data(created_channel), f"Channel '{label}' created successfully"
+                return True, standardize_channel_data(created_channel), "Channel '{}' created successfully".format(label)
             else:
-                return True, None, f"Channel '{label}' created successfully"
+                return True, None, "Channel '{}' created successfully".format(label)
         elif isinstance(result, int) and result == 1:
             # Direct integer response
             created_channel = get_channel_by_label(client, label)
             if created_channel:
-                return True, standardize_channel_data(created_channel), f"Channel '{label}' created successfully"
+                return True, standardize_channel_data(created_channel), "Channel '{}' created successfully".format(label)
             else:
-                return True, None, f"Channel '{label}' created successfully"
+                return True, None, "Channel '{}' created successfully".format(label)
         else:
-            raise Exception(f"Channel creation failed: API returned {result}")
+            raise Exception("Channel creation failed: API returned {}".format(result))
 
     except Exception as e:
-        raise Exception(f"Failed to create channel: {str(e)}")
+        raise Exception("Failed to create channel: {}".format(str(e)))
 
 
 def delete_channel(module: Any, client: Any) -> tuple:
@@ -415,10 +415,10 @@ def delete_channel(module: Any, client: Any) -> tuple:
     existing_channel = get_channel_by_label(client, label)
 
     if not existing_channel:
-        return False, None, f"Channel '{label}' does not exist"
+        return False, None, "Channel '{}' does not exist".format(label)
 
     if module.check_mode:
-        return True, None, f"Channel '{label}' would be deleted"
+        return True, None, "Channel '{}' would be deleted".format(label)
 
     try:
         # Delete the channel using the API
@@ -430,14 +430,14 @@ def delete_channel(module: Any, client: Any) -> tuple:
 
         # Check if deletion was successful
         if isinstance(result, dict) and result.get("result") == 1:
-            return True, None, f"Channel '{label}' deleted successfully"
+            return True, None, "Channel '{}' deleted successfully".format(label)
         elif isinstance(result, int) and result == 1:
-            return True, None, f"Channel '{label}' deleted successfully"
+            return True, None, "Channel '{}' deleted successfully".format(label)
         else:
-            return True, None, f"Channel '{label}' deleted successfully"
+            return True, None, "Channel '{}' deleted successfully".format(label)
 
     except Exception as e:
-        raise Exception(f"Failed to delete channel: {str(e)}")
+        raise Exception("Failed to delete channel: {}".format(str(e)))
 
 
 def clone_channel(module: Any, client: Any) -> tuple:
@@ -460,15 +460,15 @@ def clone_channel(module: Any, client: Any) -> tuple:
     existing_channel = get_channel_by_label(client, label)
 
     if existing_channel:
-        return False, standardize_channel_data(existing_channel), f"Channel '{label}' already exists"
+        return False, standardize_channel_data(existing_channel), "Channel '{}' already exists".format(label)
 
     # Check if original channel exists
     original_channel = get_channel_by_label(client, original_label)
     if not original_channel:
-        raise Exception(f"Original channel '{original_label}' not found")
+        raise Exception("Original channel '{}' not found".format(original_label))
 
     if module.check_mode:
-        return True, None, f"Channel '{label}' would be cloned from '{original_label}'"
+        return True, None, "Channel '{}' would be cloned from '{}'".format(label, original_label)
 
     try:
         # Clone the channel using the API
@@ -485,9 +485,9 @@ def clone_channel(module: Any, client: Any) -> tuple:
         # Get the cloned channel
         cloned_channel = get_channel_by_label(client, label)
         if cloned_channel:
-            return True, standardize_channel_data(cloned_channel), f"Channel '{label}' cloned successfully from '{original_label}'"
+            return True, standardize_channel_data(cloned_channel), "Channel '{}' cloned successfully from '{}'".format(label, original_label)
         else:
-            return True, None, f"Channel '{label}' cloned successfully from '{original_label}'"
+            return True, None, "Channel '{}' cloned successfully from '{}'".format(label, original_label)
 
     except Exception as e:
-        raise Exception(f"Failed to clone channel: {str(e)}")
+        raise Exception("Failed to clone channel: {}".format(str(e)))
