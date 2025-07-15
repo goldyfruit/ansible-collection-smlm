@@ -34,8 +34,10 @@ options:
     description:
       - Label of a specific architecture to get information for.
       - If not provided, information for all architectures will be returned.
+      - Can also be specified using the 'arch_name' alias.
     type: str
     required: false
+    aliases: [ arch_name ]
 notes:
   - This module requires the SUSE Multi-Linux Manager API to be accessible from the Ansible controller.
   - The user running this module must have the appropriate permissions to access architecture information.
@@ -175,7 +177,7 @@ def main():
     # Define the module arguments
     argument_spec = mlm_argument_spec()
     argument_spec.update(
-        arch_label=dict(type="str", required=False),
+        arch_label=dict(type="str", required=False, aliases=["arch_name"]),
     )
 
     # Create the module
@@ -201,23 +203,23 @@ def main():
             if architecture:
                 module.exit_json(
                     changed=False,
-                    msg=f"Retrieved information for architecture '{arch_label}'",
+                    msg="Retrieved information for architecture '{}'".format(arch_label),
                     architecture=architecture,
                 )
             else:
-                module.fail_json(msg=f"Architecture '{arch_label}' not found")
+                module.fail_json(msg="Architecture '{}' not found".format(arch_label))
         else:
             # Get all architectures
             architectures = list_channel_architectures(client)
 
             module.exit_json(
                 changed=False,
-                msg=f"Retrieved information for {len(architectures)} architectures",
+                msg="Retrieved information for {} architectures".format(len(architectures)),
                 architectures=architectures,
             )
 
     except Exception as e:
-        module.fail_json(msg=f"Failed to retrieve architecture information: {str(e)}")
+        module.fail_json(msg="Failed to retrieve architecture information: {}".format(str(e)))
     finally:
         # Logout from the API
         client.logout()
