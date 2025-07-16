@@ -69,7 +69,7 @@ Let's create something awesome! Here's a playbook that sets up an activation key
 
 ```yaml
 ---
-- name: 🎭 SUSE Manager Automation Magic
+- name: 🎭 SUSE Multi-Linux Manager Automation Magic
   hosts: localhost
   tasks:
     - name: 🔑 Create the ultimate activation key
@@ -227,7 +227,7 @@ enable_plugins = goldyfruit.mlm.inventory
 
 ```yaml
 ---
-- name: 🌊 GitOps-style SUSE Manager management
+- name: 🌊 GitOps-style SUSE Multi-Linux Manager management
   hosts: localhost
   vars:
     activation_keys:

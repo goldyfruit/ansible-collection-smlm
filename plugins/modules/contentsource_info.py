@@ -14,9 +14,10 @@
 # limitations under the License.
 
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
 
-DOCUMENTATION = r'''
+DOCUMENTATION = r"""
 ---
 module: contentsource_info
 short_description: Retrieve information about content sources in SUSE Multi-Linux Manager content projects
@@ -33,7 +34,7 @@ options:
   project_label:
     description:
       - Label of the content project to query for sources.
-      - Must be an existing content project in SUSE Manager.
+      - Must be an existing content project in SUSE Multi-Linux Manager.
       - This identifies the target project for source information retrieval.
     type: str
     required: true
@@ -62,9 +63,9 @@ notes:
 requirements:
   - python >= 3.6
   - SUSE Multi-Linux Manager server with API access
-'''
+"""
 
-EXAMPLES = r'''
+EXAMPLES = r"""
 # Using credentials configuration file (recommended)
 - name: List all sources in a content project using credentials file
   goldyfruit.mlm.contentsource_info:
@@ -126,9 +127,9 @@ EXAMPLES = r'''
     source_label: "new-software-channel"
     state: present
   when: "'new-software-channel' not in (pre_change_sources.sources | map(attribute='label') | list)"
-'''
+"""
 
-RETURN = r'''
+RETURN = r"""
 sources:
   description: List of sources in the content project.
   returned: always
@@ -155,7 +156,7 @@ sources:
       description: Channel label of the source.
       type: str
       sample: "sles15-sp4-pool-x86_64"
-'''
+"""
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.goldyfruit.mlm.plugins.module_utils.mlm_client import (
@@ -171,8 +172,8 @@ def main():
     """Main module execution."""
     argument_spec = mlm_argument_spec()
     argument_spec.update(
-        project_label=dict(type='str', required=True),
-        source_type=dict(type='str', required=False, choices=['software', 'config']),
+        project_label=dict(type="str", required=True),
+        source_type=dict(type="str", required=False, choices=["software", "config"]),
     )
 
     module = AnsibleModule(
@@ -180,8 +181,8 @@ def main():
         supports_check_mode=True,
     )
 
-    project_label = module.params['project_label']
-    source_type = module.params.get('source_type')
+    project_label = module.params["project_label"]
+    source_type = module.params.get("source_type")
 
     client = MLMClient(module)
     client.login()
@@ -190,10 +191,12 @@ def main():
         sources = list_project_sources(client, project_label, source_type)
         module.exit_json(changed=False, sources=sources)
     except Exception as e:
-        module.fail_json(msg="Failed to retrieve content source information: {}".format(str(e)))
+        module.fail_json(
+            msg="Failed to retrieve content source information: {}".format(str(e))
+        )
     finally:
         client.logout()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
